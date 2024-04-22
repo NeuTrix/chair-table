@@ -1,0 +1,84 @@
+
+// set the search table name
+const searchTable = "Tickets"
+
+// find the table
+let table = base.getTable(searchTable);
+// console.log({table})
+
+// set the search variable(s)
+let inputConfig = input.config();
+
+let ticket_number = inputConfig.ticket_number[0];
+let ticket_price = inputConfig.ticket_price[0];
+let ticket_type = inputConfig.ticket_type[0];
+let order_date = inputConfig.order_date[0];
+let order_number = inputConfig.order_number[0];
+let Event_ID = inputConfig.Event_ID[0];
+let Event_Guest_ID = inputConfig.Event_Guest_ID; // string from Script
+
+let baseInupts = {
+  ticket_number,
+  ticket_price,
+  ticket_type,
+  order_date,
+  order_number,
+}
+
+let baseFields = Object.keys(baseInupts)
+
+// Inspect inputs
+console.log({ baseInupts,baseFields })
+
+// set output base variables
+let Record_ID = "";
+let Action_Status = "Null";
+
+// get records, with seleced fields
+let tickets = await table.selectRecordsAsync({ fields: [...baseFields,"ID-Event","IDs-Event_Guests"] });
+// console.log({tickets},"tkt num: ",tickets.records[0].getCellValue("ticket_number"))
+
+let records = tickets.records
+
+// look for the record
+let foundRecord = records.find(record => {
+  let value = record.getCellValue("ticket_number")
+  return value === ticket_number
+})
+console.log({ foundRecord })
+
+// Updated || Found
+if (foundRecord) {
+  Record_ID = foundRecord.id;
+  Action_Status = "Found";
+
+  console.log('Found Record',{ foundRecord });
+}
+
+// Created
+if (!foundRecord) {
+  let newRecordId = '';
+
+  try {
+    newRecordId = await table.createRecordAsync({
+      "ID-Event": [{ id: Event_ID }],
+      "IDs-Event_Guests": [{ id: Event_Guest_ID }],
+      ticket_number,
+      ticket_price,
+      ticket_type: { name: ticket_type },
+      order_date,
+      order_number,
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+
+  Record_ID = newRecordId;
+  Action_Status = "Created";
+
+  console.log('New Record Created',{ newRecordId })
+}
+
+output.set("RecordID",[Record_ID]);
+output.set("ticket_number",ticket_number[0]);
