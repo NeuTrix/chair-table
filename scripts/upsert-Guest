@@ -4,7 +4,7 @@ let table = base.getTable(searchTable);
 
 // initiate the config
 let inputConfig = input.config();
-let { Person_ID } = inputConfig;
+let {Person_ID} = inputConfig;
 
 // Log some data
 // console.log({table, Person_ID})
@@ -14,7 +14,7 @@ let Record_ID = "";
 let Action_Status = 'Null';
 
 // get the records
-let guests = await table.selectRecordsAsync({ fields: ["ID-Person"] })
+let guests = await table.selectRecordsAsync({fields:["ID-Person"]})
 
 // ? find the guests (Linked Table)
 let foundRecords = guests.records.find(
@@ -27,28 +27,28 @@ let foundRecords = guests.records.find(
 
 // Updated || Found
 if (foundRecords) {
-  Record_ID = foundRecords.id;
-  Action_Status = "Found";
+    Record_ID = foundRecords.id;
+    Action_Status = "Found";
 
-  console.log('Found Record',{ foundRecords });
+    console.log('Found Record', {foundRecords});
 }
 
 // Created
-if (!foundRecords) {
-  let newRecordId = '';
-  try {
-    newRecordId = await table.createRecordAsync({
-      "ID-Person": [{ id: Person_ID }]
+if(!foundRecords) {
+ let newRecordId ='';
+ try { 
+      newRecordId = await table.createRecordAsync({
+      "ID-Person": [{id: Person_ID}]
     });
-  } catch (error) {
+  } catch(error) {
     console.error(error);
   }
 
   Record_ID = newRecordId;
   Action_Status = "Created";
 
-  console.log('New Record Created',{ newRecordId })
+  console.log('New Record Created', {newRecordId})
 }
 
-output.set("Record_ID",Record_ID);
-output.set("Action_Status",Action_Status);
+output.set("Record_ID", Record_ID);
+output.set("Action_Status", Action_Status);

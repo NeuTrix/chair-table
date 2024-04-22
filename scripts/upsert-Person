@@ -10,7 +10,7 @@ let {firstName, lastName, primaryEmail} = inputConfig;
 
 // console.log({firstName:firstName[0]})
 
-// intitate other variables
+// initiate other variables
 let Record_ID = "";
 let Action_Status = "Null";
 
