@@ -10,7 +10,7 @@ let {firstName, lastName, primaryEmail} = inputConfig;
 
 // console.log({firstName:firstName[0]})
 
-// initiate other variables
+// inititate other variables
 let Record_ID = "";
 let Action_Status = "Null";
 
@@ -51,14 +51,14 @@ if(hasData && !foundRecords) {
       "last name": lastName[0],
       "primary email": primaryEmail[0]
     });
+  
+  Record_ID = newRecordId;
+  Action_Status = "Created";
+  console.log('New Record Created', {newRecordId})
+
   } catch(error) {
     console.error(error);
   }
-
-  Record_ID = newRecordId;
-  Action_Status = "Created";
-
-  console.log('New Record Created', {newRecordId})
 }
 
 // Set outputs

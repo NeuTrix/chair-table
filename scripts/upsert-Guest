@@ -19,7 +19,7 @@ let guests = await table.selectRecordsAsync({fields:["ID-Person"]})
 // ? find the guests (Linked Table)
 let foundRecords = guests.records.find(
   item => {
-    // important: do not retreive 'string' values
+    // important: do not retrieve 'string' values
     let person = item.getCellValue("ID-Person");
     return person[0].id === Person_ID;
   }
@@ -40,14 +40,15 @@ if(!foundRecords) {
       newRecordId = await table.createRecordAsync({
       "ID-Person": [{id: Person_ID}]
     });
+  
+    Record_ID = newRecordId;
+    Action_Status = "Created";
+    console.log('New Record Created', {newRecordId});
+
   } catch(error) {
     console.error(error);
   }
 
-  Record_ID = newRecordId;
-  Action_Status = "Created";
-
-  console.log('New Record Created', {newRecordId})
 }
 
 output.set("Record_ID", Record_ID);

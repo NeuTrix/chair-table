@@ -50,15 +50,13 @@ if (!foundRecords) {
       "ID-Guest": [{ id: Guest_ID }],
       "ID-Event": [{ id: Event_ID }],
     });
-  } catch (error) {
 
+    Record_ID = newRecordId;
+    Action_Status = "Created";
+    console.log('New Record Created',{ newRecordId })
+  } catch (error) {
     console.error(error,{ Guest_ID,Event_ID });
   }
-
-  Record_ID = newRecordId;
-  Action_Status = "Created";
-
-  console.log('New Record Created',{ newRecordId })
 }
 
 output.set("Record_ID",Record_ID);
