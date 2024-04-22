@@ -78,6 +78,6 @@ if (!foundRecord) {
   }
 }
 
+output.set("RecordID",Record_ID);
 output.set("ticket_number",ticket_number);
-output.set("RecordID",[Record_ID]);
 output.set("Action_Status",Action_Status);
