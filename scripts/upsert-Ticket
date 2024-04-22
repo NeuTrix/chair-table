@@ -15,7 +15,6 @@ let ticket_type = inputConfig.ticket_type[0];
 let order_date = inputConfig.order_date[0];
 let order_number = inputConfig.order_number[0];
 let Event_ID = inputConfig.Event_ID[0];
-let Event_Guest_Ticket_ID = inputConfig.Event_Guest_Ticket_ID; // string from Script
 
 let baseInupts = {
   ticket_number,
@@ -26,7 +25,6 @@ let baseInupts = {
 }
 
 let baseFields = Object.keys(baseInupts);
-let linkedFields = ["ID-Event","IDs-Event_Guest_Tickets"];
 
 // Inspect inputs
 console.log({ baseInupts,baseFields })
@@ -36,7 +34,7 @@ let Record_ID = "";
 let Action_Status = "Null";
 
 // get records, with seleced fields
-let tickets = await table.selectRecordsAsync({ fields: [...baseFields,...linkedFields] });
+let tickets = await table.selectRecordsAsync({ fields: [...baseFields,"ID-Event"] });
 // console.log({tickets},"tkt num: ",tickets.records[0].getCellValue("ticket_number"))
 
 let records = tickets.records
@@ -63,7 +61,6 @@ if (!foundRecord) {
   try {
     newRecordId = await table.createRecordAsync({
       "ID-Event": [{ id: Event_ID }],
-      "IDs-Event_Guest_Tickets": [{ id: Event_Guest_Ticket_ID }],
       ticket_number,
       ticket_price,
       ticket_type,
