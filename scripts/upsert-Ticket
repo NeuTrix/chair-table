@@ -9,7 +9,7 @@ let table = base.getTable(searchTable);
 // set the search variable(s)
 let inputConfig = input.config();
 
-let ticket_number = inputConfig.ticket_number[0];
+let ticket_number = inputConfig.ticket_number[0] + 9937836;
 let ticket_price = inputConfig.ticket_price[0];
 let ticket_type = inputConfig.ticket_type[0];
 let order_date = inputConfig.order_date[0];
@@ -65,20 +65,21 @@ if (!foundRecord) {
       "IDs-Event_Guests": [{ id: Event_Guest_ID }],
       ticket_number,
       ticket_price,
-      ticket_type: { name: ticket_type },
+      ticket_type,
       order_date,
       order_number,
     });
 
+    Action_Status = "Created";
+    Record_ID = newRecordId;
+    console.log('New Record Created',{ newRecordId })
+
   } catch (error) {
     console.error(error);
+    Action_Status = "Error";
   }
-
-  Record_ID = newRecordId;
-  Action_Status = "Created";
-
-  console.log('New Record Created',{ newRecordId })
 }
 
+output.set("ticket_number",ticket_number);
 output.set("RecordID",[Record_ID]);
-output.set("ticket_number",ticket_number[0]);
+output.set("Action_Status",Action_Status);
