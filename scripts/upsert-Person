@@ -1,0 +1,66 @@
+// set the search table name
+ // find the table
+const searchTable = "People"
+let table = base.getTable(searchTable);
+// console.log({table})
+
+// initiate the config
+let inputConfig = input.config();
+let {firstName, lastName, primaryEmail} = inputConfig;
+
+// console.log({firstName:firstName[0]})
+
+// intitate other variables
+let Record_ID = "";
+let Action_Status ={};
+
+// get the records
+let people = await table.selectRecordsAsync({fields:['first name', "last name", "primary email"]})
+
+// ? find the person
+let foundRecords = people.records.find(
+  person => 
+    person.getCellValueAsString("first name") === firstName[0] &&
+    person.getCellValueAsString("last name") === lastName[0] &&
+    person.getCellValueAsString("primary email") === primaryEmail[0] 
+)
+
+let hasData = firstName.length === 1 && lastName.length === 1 && primaryEmail.length === 1
+
+// No Data
+if (!hasData) {
+  console.error("missing Person Information");
+  Action_Status = "No Data";
+}
+
+// Updated
+if (hasData && foundRecords) {
+    Record_ID = foundRecords.id;
+    Action_Status = "Updated";
+
+    console.log('Found Record', {foundRecords})
+}
+
+// Created
+if(hasData && !foundRecords) {
+  let newRecordId="";
+
+  try {
+    newRecordId = await table.createRecordAsync({
+      "first name": firstName[0],
+      "last name": lastName[0],
+      "primary email": primaryEmail[0]
+    });
+  } catch(error) {
+    console.error(error);
+  }
+
+  Record_ID = newRecordId;
+  Action_Status = "Created";
+
+  console.log('New Record Created', {newRecordId})
+}
+
+// Set outputs
+output.set("Record_ID", Record_ID);
+output.set("Action_Status", Action_Status);
