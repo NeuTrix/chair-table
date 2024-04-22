@@ -12,7 +12,7 @@ let {firstName, lastName, primaryEmail} = inputConfig;
 
 // intitate other variables
 let Record_ID = "";
-let Action_Status ={};
+let Action_Status = "Null";
 
 // get the records
 let people = await table.selectRecordsAsync({fields:['first name', "last name", "primary email"]})
@@ -33,10 +33,10 @@ if (!hasData) {
   Action_Status = "No Data";
 }
 
-// Updated
+// Updated || Found
 if (hasData && foundRecords) {
     Record_ID = foundRecords.id;
-    Action_Status = "Updated";
+    Action_Status = "Found";
 
     console.log('Found Record', {foundRecords})
 }

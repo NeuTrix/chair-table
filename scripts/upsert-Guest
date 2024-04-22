@@ -1,0 +1,54 @@
+// set the search table name and find the table
+const searchTable = "Guest_Roles"
+let table = base.getTable(searchTable);
+
+// initiate the config
+let inputConfig = input.config();
+let { Person_ID } = inputConfig;
+
+// Log some data
+// console.log({table, Person_ID})
+
+// initiate variables
+let Record_ID = "";
+let Action_Status = 'Null';
+
+// get the records
+let guests = await table.selectRecordsAsync({ fields: ["ID-Person"] })
+
+// ? find the guests (Linked Table)
+let foundRecords = guests.records.find(
+  item => {
+    // important: do not retreive 'string' values
+    let person = item.getCellValue("ID-Person");
+    return person[0].id === Person_ID;
+  }
+)
+
+// Updated || Found
+if (foundRecords) {
+  Record_ID = foundRecords.id;
+  Action_Status = "Found";
+
+  console.log('Found Record',{ foundRecords });
+}
+
+// Created
+if (!foundRecords) {
+  let newRecordId = '';
+  try {
+    newRecordId = await table.createRecordAsync({
+      "ID-Person": [{ id: Person_ID }]
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  Record_ID = newRecordId;
+  Action_Status = "Created";
+
+  console.log('New Record Created',{ newRecordId })
+}
+
+output.set("Record_ID",Record_ID);
+output.set("Action_Status",Action_Status);
