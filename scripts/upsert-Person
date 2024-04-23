@@ -1,42 +1,7 @@
-// set the search table name
-const searchTable = "People"
-let table = base.getTable(searchTable);
-
-// initiate the config
-let inputConfig = input.config();
-let firstName = inputConfig.firstName[0];
-let middleName = inputConfig.middleName[0];
-let lastName = inputConfig.lastName[0];
-let primaryEmail = inputConfig.primaryEmail[0];
-let secondaryEmail = inputConfig.secondaryEmail[0];
-let primaryPhone = inputConfig.primaryPhone[0];
-let secondaryPhone = inputConfig.secondaryPhone[0];
-
-// inititate other variables
-let Record_ID = "";
-let Action_Status = "Null";
-
-// ***** Create 'searchable_id *****
-// Last-First-(middle first initial)-email, all lowercase
-const createSearchableId = (data) => {
-  console.log({data})
-  let {firstName, middleName, lastName, primaryEmail} = data;
-  let nameArr = [];
-
-  nameArr.push(...lastName.split(" "));
-  nameArr.push(...firstName.split(" "));
-  // Clean up middleName
-  data.middleName && nameArr.push(middleName[0]);
-  nameArr.push(primaryEmail);
-
-  let searchable = nameArr.join("-").toLowerCase();
-  console.log({searchable})
-  return searchable
-};
-// **************************
-
-// get the records
-let fields = [
+// Constants and Initial Setup
+const table = base.getTable("People");
+const inputConfig = input.config();
+const fields = [
   "first name", 
   "last name", 
   "primary email", 
@@ -44,87 +9,91 @@ let fields = [
   "primary phone",
   "secondary phone",
   "searchable_id"
-]
+];
 
-let people = await table.selectRecordsAsync({fields});
+// Extract first item of each array from input configuration
+const { firstName, middleName, lastName, primaryEmail, secondaryEmail, primaryPhone, secondaryPhone } = {
+  firstName: inputConfig.firstName[0],
+  middleName: inputConfig.middleName[0],
+  lastName: inputConfig.lastName[0],
+  primaryEmail: inputConfig.primaryEmail[0],
+  secondaryEmail: inputConfig.secondaryEmail[0],
+  primaryPhone: inputConfig.primaryPhone[0],
+  secondaryPhone: inputConfig.secondaryPhone[0]
+};
 
-// create searchable string
-let data = {firstName, middleName, lastName, primaryEmail};
-let searchable_id = createSearchableId(data);
+// Function to create a searchable ID, refactored to prevent "--"
+const createSearchableId = (firstName, middleName, lastName, primaryEmail) => {
+  const parts = [
+      lastName.replace(/\s+/g, "-"),
+      firstName.replace(/\s+/g, "-"),
+      middleName ? middleName[0] : '',  // Only use the first character of middleName if not null or empty
+      primaryEmail
+  ].filter(Boolean).join("-").toLowerCase();  // Filter out empty parts to prevent "--" and join them
+  console.log({searchableId: parts});
+  return parts;
+};
 
-let foundRecord = people.records.find(
-  person => person.getCellValueAsString("searchable_id") === searchable_id
-)
+const searchableId = createSearchableId(firstName, middleName, lastName, primaryEmail);
+const hasData = firstName && lastName && primaryEmail;
 
-let hasData = firstName !== "" && lastName !== "" && primaryEmail !== "";
-
-// No Data
-if (!hasData) {
-  console.error("missing Person Information");
-  Action_Status = "No Data";
-}
-
-// Check if there's relevant data and a record was found
-if (hasData && foundRecord) {
-    let updates = {};
-    const currPhonePrime = foundRecord.getCellValue("primary phone");
-    const currPhoneSecond = foundRecord.getCellValue("secondary phone");
-    const currEmailSecond = foundRecord.getCellValue("secondary email");
-
-    // Determine necessary updates based on new data provided
-    if (primaryPhone && primaryPhone !== currPhonePrime) {
-        updates["primary phone"] = primaryPhone;
-    }
-    if (secondaryPhone && secondaryPhone !== currPhoneSecond) {
-        updates["secondary phone"] = secondaryPhone;
-    }
-    if (secondaryEmail && secondaryEmail !== currEmailSecond) {
-        updates["secondary email"] = secondaryEmail;
-    }
-
-    try {
-        // Check if there are any updates to apply
-        if (Object.keys(updates).length > 0) {
-            await table.updateRecordAsync(foundRecord.id, updates);
-            Action_Status = "Updated";
-            console.log('Updated Record', { Record_ID: foundRecord.id, Updates: updates });
-        } else {
-            // No updates, just found the record
-            Action_Status = "Found";
-            console.log('Found Record', { Record_ID: foundRecord.id });
-        }
-    } catch (error) {
-        // Log error and handle accordingly
-        console.error('Error updating record:', error);
-        // Optionally, you might want to set an error status or perform other error handling logic
-        Action_Status = "Error";
-    }
-
-    // Always set the record ID for logging or further processing
-    Record_ID = foundRecord.id;
-}
-
-// Created
-if(hasData && !foundRecord) {
-  let newRecordId="";
-
+async function processRecords() {
   try {
-    newRecordId = await table.createRecordAsync({
-      "first name": firstName,
-      "last name": lastName,
-      "primary email": primaryEmail
-    });
-  
-  Record_ID = newRecordId;
-  Action_Status = "Created";
-  console.log('New Record Created', {newRecordId})
+    const records = await table.selectRecordsAsync({fields});
+    const foundRecord = records.records.find(
+      record => record.getCellValueAsString("searchable_id") === searchableId
+    );
 
-  } catch(error) {
-    console.error(error);
+    if (!hasData) {
+      console.error("Missing person information");
+      return {
+        searchableId: searchableId,
+        Record_ID: "",
+        Action_Status: "No Data"
+      };
+    }
+
+    if (foundRecord) {
+      let updates = {};
+      const updateFields = {
+        "primary phone": primaryPhone,
+        "secondary phone": secondaryPhone,
+        "secondary email": secondaryEmail
+      };
+
+      // Determine necessary updates based on new data provided
+      for (let [field, value] of Object.entries(updateFields)) {
+        if (value && value !== foundRecord.getCellValue(field)) {
+          updates[field] = value;
+        }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await table.updateRecordAsync(foundRecord.id, updates);
+        console.log('Updated Record', {Record_ID: foundRecord.id, Updates: updates});
+        return { searchableId, Record_ID: foundRecord.id, Action_Status: "Updated" };
+      } else {
+        console.log('Found Record', {Record_ID: foundRecord.id});
+        return { searchableId, Record_ID: foundRecord.id, Action_Status: "Found" };
+      }
+    } else if (hasData) {
+      const newRecordId = await table.createRecordAsync({
+        "first name": firstName,
+        "last name": lastName,
+        "primary email": primaryEmail
+      });
+      console.log('New Record Created', {newRecordId});
+      return { searchableId, Record_ID: newRecordId, Action_Status: "Created" };
+    }
+  } catch (error) {
+    console.error('Error processing records:', error);
+    return { searchableId, Record_ID: "", Action_Status: "Error" };
   }
 }
 
-// Set outputs
-output.set("searchable_id", searchable_id);
-output.set("Record_ID", Record_ID);
-output.set("Action_Status", Action_Status);
+// Execute the function and handle outputs
+processRecords().then(result => {
+  output.set("searchable_id", result.searchableId);
+  output.set("Record_ID", result.Record_ID);
+  output.set("Action_Status", result.Action_Status);
+});
