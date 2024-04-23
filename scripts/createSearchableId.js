@@ -25,7 +25,4 @@ let names = { first_name,middle_name,last_name,primary_email }
 let searchable_id = createSearchableId(names);
 // =============================================
 
-output.set("firstName",[first_name]);
-output.set("middleName",[middle_name]);
-output.set("lastName",[last_name]);
 output.set("searchable_id",[searchable_id]);
