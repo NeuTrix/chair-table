@@ -10,16 +10,9 @@ let firstName = inputConfig.firstName[0];
 let middleName = inputConfig.middleName[0];
 let lastName = inputConfig.lastName[0];
 let primaryEmail = inputConfig.primaryEmail[0];
-let secondaryEmail = 'jethro@tull.com';
-// inputConfig.secondaryEmail[0];
+let secondaryEmail = inputConfig.secondaryEmail[0];
 let primaryPhone = inputConfig.primaryPhone[0];
 let secondaryPhone = inputConfig.secondaryPhone[0];
-
-console.log({
-  secondaryEmail,
-primaryPhone,
-secondaryPhone}
-)
 
 // inititate other variables
 let Record_ID = "";
@@ -73,50 +66,37 @@ if (!hasData) {
   Action_Status = "No Data";
 }
 
-// Upated || Found
-// has a phone or secondary email supplied
+// Check if there's relevant data and a record was found
 if (hasData && foundRecord) {
+    let updates = {};
+    const currPhonePrime = foundRecord.getCellValue("primary phone");
+    const currPhoneSecond = foundRecord.getCellValue("secondary phone");
+    const currEmailSecond = foundRecord.getCellValue("secondary email");
 
-    let currPhonePrime = foundRecord.getCellValue("primary phone");
-    let currPhoneSecond = foundRecord.getCellValue("secondary phone");
-    let currEmailSecond = foundRecord.getCellValue("secondary email");
-
-    // Updated
+    // Determine necessary updates based on new data provided
     if (primaryPhone && primaryPhone !== currPhonePrime) {
-      await table.updateRecordAsync(foundRecord.id,{
-        "primary phone": primaryPhone,
-      })
-
-      Record_ID = foundRecord.id;
-      Action_Status = "Updated";
-      console.log('Updated Record', {foundRecord})
-    } else 
-      if (secondaryPhone && secondaryPhone !== currPhoneSecond) {
-        await table.updateRecordAsync(foundRecord.id,{
-        "secondary phone": secondaryPhone,
-      })
-
-      Record_ID = foundRecord.id;
-      Action_Status = "Updated";
-      console.log('Updated Record', {foundRecord})
-    } else 
-      if (secondaryEmail && secondaryEmail !== currEmailSecond) {
-        await table.updateRecordAsync(foundRecord.id,{
-        "secondary email": secondaryEmail,
-      })
-
-      Record_ID = foundRecord.id;
-      Action_Status = "Updated";
-      console.log('Updated Record', {foundRecord})
+        updates["primary phone"] = primaryPhone;
+    }
+    if (secondaryPhone && secondaryPhone !== currPhoneSecond) {
+        updates["secondary phone"] = secondaryPhone;
+    }
+    if (secondaryEmail && secondaryEmail !== currEmailSecond) {
+        updates["secondary email"] = secondaryEmail;
     }
 
-    else {
-      // Found
-      Record_ID = foundRecord.id;
-      Action_Status = "Found";
-
-      console.log('Found Record', {foundRecord})
+    // Check if there are any updates to apply
+    if (Object.keys(updates).length > 0) {
+        await table.updateRecordAsync(foundRecord.id, updates);
+        Action_Status = "Updated";
+        console.log('Updated Record', { Record_ID: foundRecord.id, Updates: updates });
+    } else {
+        // No updates, just found the record
+        Action_Status = "Found";
+        console.log('Found Record', { Record_ID: foundRecord.id });
     }
+
+    // Always set the record ID for logging or further processing
+    Record_ID = foundRecord.id;
 }
 
 // Created
