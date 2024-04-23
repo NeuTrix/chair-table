@@ -1,21 +1,22 @@
+// nameSplitter function
+let full_name = input.config().full_name
 
-// Name Splitter
-// this function takes a full name as a string and returns an object with the first, middle, and last names as separate properties.  The middle name will be an empty string if it is not provided.
+// splits a full name string into first, middle, and last
 
 function nameSplitter(name) {
-  var nameArray = name.split(' ');
-  var firstName = nameArray[0];
-  var lastName = nameArray[nameArray.length - 1];
-  var middleName = nameArray.slice(1,nameArray.length - 1).join(' ');
-  return { firstName,middleName,lastName };
+  let nameArray = name.split(' ');
+  let first_name = nameArray[0];
+  let last_name = nameArray[nameArray.length - 1];
+  let middle_name = nameArray.slice(1,nameArray.length - 1).join(' ');
+  return { first_name,middle_name,last_name };
 }
 
-// *** test ***
-// Expected output: { firstName: 'John', middleName: 'Doe', lastName: 'Smith-Jones' }
-// let name = "John Doe Smith-Jones"
-// let name1 = "John Doe Smith Jones"
+// run the function
+let result = nameSplitter(full_name);
+let { first_name,last_name,middle_name } = result;
 
-// let result = nameSplitter(name);
-// let result1 = nameSplitter(name1);
-
-// console.log({result, result1});
+// deliver output
+output.set("full_name",[full_name],);
+output.set("first_name",[first_name],);
+output.set("middle_name",[middle_name],);
+output.set("last_name",[last_name],);
