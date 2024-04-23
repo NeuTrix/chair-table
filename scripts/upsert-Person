@@ -22,32 +22,22 @@ const { firstName, middleName, lastName, primaryEmail, secondaryEmail, primaryPh
   secondaryPhone: inputConfig.secondaryPhone[0]
 };
 
-// Function to create a searchable ID, refactored to prevent "--"
-const createSearchableId = (firstName, middleName, lastName, primaryEmail) => {
-  const parts = [
-      lastName.replace(/\s+/g, "-"),
-      firstName.replace(/\s+/g, "-"),
-      middleName ? middleName[0] : '',  // Only use the first character of middleName if not null or empty
-      primaryEmail
-  ].filter(Boolean).join("-").toLowerCase();  // Filter out empty parts to prevent "--" and join them
-  console.log({searchableId: parts});
-  return parts;
-};
+// config searchable id
+const searchable_id = inputConfig.searchable_id
 
-const searchableId = createSearchableId(firstName, middleName, lastName, primaryEmail);
 const hasData = firstName && lastName && primaryEmail;
 
 async function processRecords() {
   try {
     const records = await table.selectRecordsAsync({fields});
     const foundRecord = records.records.find(
-      record => record.getCellValueAsString("searchable_id") === searchableId
+      record => record.getCellValueAsString("searchable_id") === searchable_id
     );
 
     if (!hasData) {
       console.error("Missing person information");
       return {
-        searchableId: searchableId,
+        searchable_id: searchable_id,
         Record_ID: "",
         Action_Status: "No Data"
       };
@@ -71,10 +61,10 @@ async function processRecords() {
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id, updates);
         console.log('Updated Record', {Record_ID: foundRecord.id, Updates: updates});
-        return { searchableId, Record_ID: foundRecord.id, Action_Status: "Updated" };
+        return { searchable_id, Record_ID: foundRecord.id, Action_Status: "Updated" };
       } else {
         console.log('Found Record', {Record_ID: foundRecord.id});
-        return { searchableId, Record_ID: foundRecord.id, Action_Status: "Found" };
+        return { searchable_id, Record_ID: foundRecord.id, Action_Status: "Found" };
       }
     } else if (hasData) {
       const newRecordId = await table.createRecordAsync({
@@ -83,11 +73,11 @@ async function processRecords() {
         "primary email": primaryEmail
       });
       console.log('New Record Created', {newRecordId});
-      return { searchableId, Record_ID: newRecordId, Action_Status: "Created" };
+      return { searchable_id, Record_ID: newRecordId, Action_Status: "Created" };
     }
   } catch (error) {
     console.error('Error processing records:', error);
-    return { searchableId, Record_ID: "", Action_Status: "Error" };
+    return { searchable_id, Record_ID: "", Action_Status: "Error" };
   }
 }
 
@@ -96,7 +86,7 @@ processRecords().then(result => {
   console.log({result});
 
   if(result){
-    output.set("searchable_id", result.searchableId);
+    output.set("searchable_id", result.searchable_id);
     output.set("Record_ID", result.Record_ID);
     output.set("Action_Status", result.Action_Status);
   } else {
