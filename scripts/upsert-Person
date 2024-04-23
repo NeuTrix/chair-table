@@ -93,7 +93,13 @@ async function processRecords() {
 
 // Execute the function and handle outputs
 processRecords().then(result => {
-  output.set("searchable_id", result.searchableId);
-  output.set("Record_ID", result.Record_ID);
-  output.set("Action_Status", result.Action_Status);
+  console.log({result});
+
+  if(result){
+    output.set("searchable_id", result.searchableId);
+    output.set("Record_ID", result.Record_ID);
+    output.set("Action_Status", result.Action_Status);
+  } else {
+    throw new Error("No results returnd in People script")
+  }
 });
