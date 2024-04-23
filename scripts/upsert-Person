@@ -13,7 +13,7 @@ let secondary_email = inputConfig.secondary_email[0];
 let primary_phone = inputConfig.primary_phone[0];
 let secondary_phone = inputConfig.secondary_phone[0];
 // config searchable id
-let searchable_id = inputConfig.searchable_id
+let searchable_id = inputConfig.searchable_id[0];
 
 const fields = [
   first_name,
@@ -31,6 +31,8 @@ const hasData = first_name && last_name && primary_email;
 async function processRecords() {
   try {
     const records = await table.selectRecordsAsync({ ...fields });
+    console.log({ records })//** test */
+
     const foundRecord = records.records.find(
       record => record.getCellValueAsString("searchable_id") === searchable_id
     );
@@ -38,7 +40,6 @@ async function processRecords() {
     if (!hasData) {
       console.error("Missing person information");
       return {
-        searchable_id,
         Record_ID: "",
         Action_Status: "No Data"
       };
@@ -47,9 +48,9 @@ async function processRecords() {
     if (foundRecord) {
       let updates = {};
       const updateFields = {
-        "primary_phone": primary_phone,
-        "secondary_phone": secondary_phone,
-        "secondary_email": secondary_email
+        primary_phone,
+        secondary_phone,
+        secondary_email,
       };
 
       // Determine necessary updates based on new data provided
@@ -69,9 +70,10 @@ async function processRecords() {
       }
     } else if (hasData) {
       const newRecordId = await table.createRecordAsync({
-        "first_name": first_name,
-        "last_name": last_name,
-        "primary_email": primary_email
+        first_name,
+        last_name,
+        primary_email,
+        searchable_id
       });
       console.log('New Record Created',{ newRecordId });
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
@@ -87,7 +89,7 @@ processRecords().then(result => {
   console.log({ result });
 
   if (result) {
-    output.set("searchable_id",result.searchable_id);
+    // output.set("searchable_id",result.searchable_id);
     output.set("Record_ID",result.Record_ID);
     output.set("Action_Status",result.Action_Status);
   } else {
