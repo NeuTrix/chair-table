@@ -10,6 +10,15 @@ let firstName = inputConfig.firstName[0];
 let middleName = inputConfig.middleName[0];
 let lastName = inputConfig.lastName[0];
 let primaryEmail = inputConfig.primaryEmail[0];
+let secondaryEmail = inputConfig.secondaryEmail[0];
+let primaryPhone = inputConfig.primaryPhone[0];
+let secondaryPhone = inputConfig.secondaryPhone[0];
+
+console.log({
+  secondaryEmail,
+primaryPhone,
+secondaryPhone}
+)
 
 // inititate other variables
 let Record_ID = "";
@@ -28,19 +37,30 @@ const createSearchableId = (data) => {
   data.middleName && nameArr.push(middleName[0]);
   nameArr.push(primaryEmail);
 
-  return nameArr.join("-").toLowerCase();
+  let searchable = nameArr.join("-").toLowerCase();
+  console.log({searchable})
+  return searchable
 };
 // **************************
 
 // get the records
-let fields = ['first name', "last name", "primary email", "searchable_id"]
-let people = await table.selectRecordsAsync({fields})
+let fields = [
+  "first name", 
+  "last name", 
+  "primary email", 
+  "secondary email",
+  "primary phone",
+  "secondary phone",
+  "searchable_id"
+]
+
+let people = await table.selectRecordsAsync({fields});
 
 // create searchable string
 let data = {firstName, middleName, lastName, primaryEmail};
 let searchable_id = createSearchableId(data);
 
-let foundRecords = people.records.find(
+let foundRecord = people.records.find(
   person => person.getCellValueAsString("searchable_id") === searchable_id
 )
 
@@ -52,16 +72,37 @@ if (!hasData) {
   Action_Status = "No Data";
 }
 
-// Updated || Found
-if (hasData && foundRecords) {
-    Record_ID = foundRecords.id;
-    Action_Status = "Found";
+// Upated || Found
+// has a phone or secondary email supplied
+if (hasData && foundRecord) {
 
-    console.log('Found Record', {foundRecords})
+    let currPhonePri = foundRecord.getCellValue("primary phone");
+    console.log({currPhonePri})//*** */
+
+    // Updated
+    if (primaryPhone && primaryPhone !== currPhonePri) {
+      await table.updateRecordAsync(foundRecord.id,{
+        "primary phone": primaryPhone,
+      })
+
+    Record_ID = foundRecord.id;
+    Action_Status = "Updated";
+    console.log('Updated Record', {foundRecord})
+    } else {
+      // Found
+      Record_ID = foundRecord.id;
+      Action_Status = "Found";
+
+      console.log('Found Record', {foundRecord})
+    }
+
+
 }
 
+
+
 // Created
-if(hasData && !foundRecords) {
+if(hasData && !foundRecord) {
   let newRecordId="";
 
   try {
