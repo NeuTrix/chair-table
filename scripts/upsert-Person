@@ -1,8 +1,6 @@
 // set the search table name
- // find the table
 const searchTable = "People"
 let table = base.getTable(searchTable);
-// console.log({table})
 
 // initiate the config
 let inputConfig = input.config();
@@ -84,15 +82,22 @@ if (hasData && foundRecord) {
         updates["secondary email"] = secondaryEmail;
     }
 
-    // Check if there are any updates to apply
-    if (Object.keys(updates).length > 0) {
-        await table.updateRecordAsync(foundRecord.id, updates);
-        Action_Status = "Updated";
-        console.log('Updated Record', { Record_ID: foundRecord.id, Updates: updates });
-    } else {
-        // No updates, just found the record
-        Action_Status = "Found";
-        console.log('Found Record', { Record_ID: foundRecord.id });
+    try {
+        // Check if there are any updates to apply
+        if (Object.keys(updates).length > 0) {
+            await table.updateRecordAsync(foundRecord.id, updates);
+            Action_Status = "Updated";
+            console.log('Updated Record', { Record_ID: foundRecord.id, Updates: updates });
+        } else {
+            // No updates, just found the record
+            Action_Status = "Found";
+            console.log('Found Record', { Record_ID: foundRecord.id });
+        }
+    } catch (error) {
+        // Log error and handle accordingly
+        console.error('Error updating record:', error);
+        // Optionally, you might want to set an error status or perform other error handling logic
+        Action_Status = "Error";
     }
 
     // Always set the record ID for logging or further processing
