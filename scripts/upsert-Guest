@@ -17,7 +17,7 @@ let guests = await table.selectRecordsAsync({fields: ["ID-Person"]});
 let foundRecords = guests.records.find(item => {
     let person = item.getCellValue("ID-Person");
     // Ensure person is not null and the array is not empty
-    return person && person.length > 0 && person[0].id === Person_ID+99;
+    return person && person.length > 0 && person[0].id === Person_ID;
 });
 
 // Updated || Found
