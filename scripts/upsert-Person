@@ -10,7 +10,8 @@ let firstName = inputConfig.firstName[0];
 let middleName = inputConfig.middleName[0];
 let lastName = inputConfig.lastName[0];
 let primaryEmail = inputConfig.primaryEmail[0];
-let secondaryEmail = inputConfig.secondaryEmail[0];
+let secondaryEmail = 'jethro@tull.com';
+// inputConfig.secondaryEmail[0];
 let primaryPhone = inputConfig.primaryPhone[0];
 let secondaryPhone = inputConfig.secondaryPhone[0];
 
@@ -78,8 +79,7 @@ if (hasData && foundRecord) {
 
     let currPhonePrime = foundRecord.getCellValue("primary phone");
     let currPhoneSecond = foundRecord.getCellValue("secondary phone");
-    // let currPhonePrime = foundRecord.getCellValue("primary phone");
-
+    let currEmailSecond = foundRecord.getCellValue("secondary email");
 
     // Updated
     if (primaryPhone && primaryPhone !== currPhonePrime) {
@@ -90,9 +90,19 @@ if (hasData && foundRecord) {
       Record_ID = foundRecord.id;
       Action_Status = "Updated";
       console.log('Updated Record', {foundRecord})
-    } else if (secondaryPhone && secondaryPhone !== currPhoneSecond) {
-      await table.updateRecordAsync(foundRecord.id,{
+    } else 
+      if (secondaryPhone && secondaryPhone !== currPhoneSecond) {
+        await table.updateRecordAsync(foundRecord.id,{
         "secondary phone": secondaryPhone,
+      })
+
+      Record_ID = foundRecord.id;
+      Action_Status = "Updated";
+      console.log('Updated Record', {foundRecord})
+    } else 
+      if (secondaryEmail && secondaryEmail !== currEmailSecond) {
+        await table.updateRecordAsync(foundRecord.id,{
+        "secondary email": secondaryEmail,
       })
 
       Record_ID = foundRecord.id;
@@ -100,7 +110,6 @@ if (hasData && foundRecord) {
       console.log('Updated Record', {foundRecord})
     }
 
-    
     else {
       // Found
       Record_ID = foundRecord.id;
