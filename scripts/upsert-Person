@@ -6,26 +6,45 @@ let table = base.getTable(searchTable);
 
 // initiate the config
 let inputConfig = input.config();
-let {firstName, lastName, primaryEmail} = inputConfig;
-
-// console.log({firstName:firstName[0]})
+let firstName = inputConfig.firstName[0];
+let middleName = inputConfig.middleName[0];
+let lastName = inputConfig.lastName[0];
+let primaryEmail = inputConfig.primaryEmail[0];
 
 // inititate other variables
 let Record_ID = "";
 let Action_Status = "Null";
 
-// get the records
-let people = await table.selectRecordsAsync({fields:['first name', "last name", "primary email"]})
+// ***** Create 'searchable_id *****
+// Last-First-(middle first initial)-email, all lowercase
+const createSearchableId = (data) => {
+  console.log({data})
+  let {firstName, middleName, lastName, primaryEmail} = data;
+  let nameArr = [];
 
-// ? find the person
+  nameArr.push(...lastName.split(" "));
+  nameArr.push(...firstName.split(" "));
+  // Clean up middleName
+  data.middleName && nameArr.push(middleName[0]);
+  nameArr.push(primaryEmail);
+
+  return nameArr.join("-").toLowerCase();
+};
+// **************************
+
+// get the records
+let fields = ['first name', "last name", "primary email", "searchable_id"]
+let people = await table.selectRecordsAsync({fields})
+
+// create searchable string
+let data = {firstName, middleName, lastName, primaryEmail};
+let searchable_id = createSearchableId(data);
+
 let foundRecords = people.records.find(
-  person => 
-    person.getCellValueAsString("first name") === firstName[0] &&
-    person.getCellValueAsString("last name") === lastName[0] &&
-    person.getCellValueAsString("primary email") === primaryEmail[0] 
+  person => person.getCellValueAsString("searchable_id") === searchable_id
 )
 
-let hasData = firstName.length === 1 && lastName.length === 1 && primaryEmail.length === 1
+let hasData = firstName !== "" && lastName !== "" && primaryEmail !== "";
 
 // No Data
 if (!hasData) {
@@ -47,9 +66,9 @@ if(hasData && !foundRecords) {
 
   try {
     newRecordId = await table.createRecordAsync({
-      "first name": firstName[0],
-      "last name": lastName[0],
-      "primary email": primaryEmail[0]
+      "first name": firstName,
+      "last name": lastName,
+      "primary email": primaryEmail
     });
   
   Record_ID = newRecordId;
@@ -62,5 +81,6 @@ if(hasData && !foundRecords) {
 }
 
 // Set outputs
+output.set("searchable_id", searchable_id);
 output.set("Record_ID", Record_ID);
 output.set("Action_Status", Action_Status);
