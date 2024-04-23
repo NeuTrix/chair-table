@@ -27,4 +27,4 @@ let searchable_id = createSearchableId(names);
 output.set("firstName",first_name);
 output.set("middleName",middle_name);
 output.set("lastName",last_name);
-output.set("seasearchable_idrch",searchable_id);
+output.set("searchable_id",searchable_id);
