@@ -76,30 +76,39 @@ if (!hasData) {
 // has a phone or secondary email supplied
 if (hasData && foundRecord) {
 
-    let currPhonePri = foundRecord.getCellValue("primary phone");
-    console.log({currPhonePri})//*** */
+    let currPhonePrime = foundRecord.getCellValue("primary phone");
+    let currPhoneSecond = foundRecord.getCellValue("secondary phone");
+    // let currPhonePrime = foundRecord.getCellValue("primary phone");
+
 
     // Updated
-    if (primaryPhone && primaryPhone !== currPhonePri) {
+    if (primaryPhone && primaryPhone !== currPhonePrime) {
       await table.updateRecordAsync(foundRecord.id,{
         "primary phone": primaryPhone,
       })
 
-    Record_ID = foundRecord.id;
-    Action_Status = "Updated";
-    console.log('Updated Record', {foundRecord})
-    } else {
+      Record_ID = foundRecord.id;
+      Action_Status = "Updated";
+      console.log('Updated Record', {foundRecord})
+    } else if (secondaryPhone && secondaryPhone !== currPhoneSecond) {
+      await table.updateRecordAsync(foundRecord.id,{
+        "secondary phone": secondaryPhone,
+      })
+
+      Record_ID = foundRecord.id;
+      Action_Status = "Updated";
+      console.log('Updated Record', {foundRecord})
+    }
+
+    
+    else {
       // Found
       Record_ID = foundRecord.id;
       Action_Status = "Found";
 
       console.log('Found Record', {foundRecord})
     }
-
-
 }
-
-
 
 // Created
 if(hasData && !foundRecord) {
