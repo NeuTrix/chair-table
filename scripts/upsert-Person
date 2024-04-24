@@ -2,9 +2,7 @@
 const table = base.getTable("People");
 const inputConfig = input.config();
 
-
 // Extract first item of each array from input configuration
-
 let first_name = inputConfig.first_name[0];
 let middle_name = inputConfig.middle_name[0];
 let last_name = inputConfig.last_name[0];
@@ -12,7 +10,6 @@ let primary_email = inputConfig.primary_email[0];
 let secondary_email = inputConfig.secondary_email[0];
 let primary_phone = inputConfig.primary_phone[0];
 let secondary_phone = inputConfig.secondary_phone[0];
-// config searchable id
 let searchable_id = inputConfig.searchable_id[0];
 
 const fields = [
@@ -26,24 +23,32 @@ const fields = [
   searchable_id,
 ];
 
+const createBlob = {
+  first_name,
+  middle_name,
+  last_name,
+  primary_email,
+  secondary_email,
+  primary_phone,
+  // secondary_phone,
+  searchable_id,
+}
+
 const hasData = first_name && last_name && primary_email;
 
 async function processRecords() {
   try {
     const records = await table.selectRecordsAsync({ ...fields });
-    console.log({ records })//** test */
-
     const foundRecord = records.records.find(
-      record => record.getCellValueAsString("searchable_id") === searchable_id
+      //** TEST */
+      record => record.getCellValueAsString("searchable_id") === searchable_id + 99
     );
 
     if (!hasData) {
       console.error("Missing person information");
-      return {
-        Record_ID: "",
-        Action_Status: "No Data"
-      };
-    }
+      Action_Status: "Error"
+      throw new Error("Missing person information");
+    };
 
     if (foundRecord) {
       let updates = {};
@@ -69,12 +74,7 @@ async function processRecords() {
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
       }
     } else if (hasData) {
-      const newRecordId = await table.createRecordAsync({
-        first_name,
-        last_name,
-        primary_email,
-        searchable_id
-      });
+      const newRecordId = await table.createRecordAsync({ ...createBlob });
       console.log('New Record Created',{ newRecordId });
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
     }
@@ -86,8 +86,6 @@ async function processRecords() {
 
 // Execute the function and handle outputs
 processRecords().then(result => {
-  console.log({ result });
-
   if (result) {
     // output.set("searchable_id",result.searchable_id);
     output.set("Record_ID",result.Record_ID);
