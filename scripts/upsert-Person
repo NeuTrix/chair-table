@@ -44,30 +44,26 @@ async function processRecords() {
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
       } else {
-        console.log('Found Record',{ Record_ID: foundRecord.id });
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
       }
     } else if (hasData) {
       const newRecordId = await table.createRecordAsync({ ...inputs });
-      console.log('New Record Created',{ newRecordId });
 
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
     }
   } catch (error) {
-    console.error('Error processing records:',error);
-
-    return { searchable_id,Record_ID: "",Action_Status: "Error" };
+    throw new Error(`Error processing records: ${error}`);
   }
 }
 
 // Execute the function and handle outputs
 processRecords().then(result => {
   if (result) {
-    // output.set("searchable_id",result.searchable_id);
     output.set("Record_ID",result.Record_ID);
     output.set("Action_Status",result.Action_Status);
   } else {
+    output.set("Action_Status","Error");
     throw new Error("No results returned in People script")
   }
 });
