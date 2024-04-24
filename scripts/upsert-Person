@@ -1,96 +1,97 @@
-// Constants and Initial Setup
-const table = base.getTable("People");
-const inputConfig = input.config();
+console.log('hello from People script');
+// // Constants and Initial Setup
+// const table = base.getTable("People");
+// const inputConfig = input.config();
 
-// Extract first item of each array from input configuration
-let first_name = inputConfig.first_name[0];
-let middle_name = inputConfig.middle_name[0];
-let last_name = inputConfig.last_name[0];
-let primary_email = inputConfig.primary_email[0];
-let secondary_email = inputConfig.secondary_email[0];
-let primary_phone = inputConfig.primary_phone[0];
-let secondary_phone = inputConfig.secondary_phone[0];
-let searchable_id = inputConfig.searchable_id[0];
+// // Extract first item of each array from input configuration
+// let first_name = inputConfig.first_name[0];
+// let middle_name = inputConfig.middle_name[0];
+// let last_name = inputConfig.last_name[0];
+// let primary_email = inputConfig.primary_email[0];
+// let secondary_email = inputConfig.secondary_email[0];
+// let primary_phone = inputConfig.primary_phone[0];
+// let secondary_phone = inputConfig.secondary_phone[0];
+// let searchable_id = inputConfig.searchable_id[0];
 
-const fields = [
-  first_name,
-  last_name,
-  middle_name,
-  primary_email,
-  secondary_email,
-  primary_phone,
-  secondary_phone,
-  searchable_id,
-];
+// const fields = [
+//   first_name,
+//   last_name,
+//   middle_name,
+//   primary_email,
+//   secondary_email,
+//   primary_phone,
+//   secondary_phone,
+//   searchable_id,
+// ];
 
-const createBlob = {
-  first_name,
-  middle_name,
-  last_name,
-  primary_email,
-  secondary_email,
-  primary_phone,
-  // secondary_phone,
-  searchable_id,
-}
+// const createBlob = {
+//   first_name,
+//   middle_name,
+//   last_name,
+//   primary_email,
+//   secondary_email,
+//   primary_phone,
+//   // secondary_phone,
+//   searchable_id,
+// }
 
-const hasData = first_name && last_name && primary_email;
+// const hasData = first_name && last_name && primary_email;
 
-async function processRecords() {
-  try {
-    const records = await table.selectRecordsAsync({ ...fields });
-    const foundRecord = records.records.find(
-      //** TEST */
-      record => record.getCellValueAsString("searchable_id") === searchable_id + 99
-    );
+// async function processRecords() {
+//   try {
+//     const records = await table.selectRecordsAsync({ ...fields });
+//     const foundRecord = records.records.find(
+//       //** TEST */
+//       record => record.getCellValueAsString("searchable_id") === searchable_id + 99
+//     );
 
-    if (!hasData) {
-      console.error("Missing person information");
-      Action_Status: "Error"
-      throw new Error("Missing person information");
-    };
+//     if (!hasData) {
+//       console.error("Missing person information");
+//       Action_Status: "Error"
+//       throw new Error("Missing person information");
+//     };
 
-    if (foundRecord) {
-      let updates = {};
-      const updateFields = {
-        primary_phone,
-        secondary_phone,
-        secondary_email,
-      };
+//     if (foundRecord) {
+//       let updates = {};
+//       const updateFields = {
+//         primary_phone,
+//         secondary_phone,
+//         secondary_email,
+//       };
 
-      // Determine necessary updates based on new data provided
-      for (let [field,value] of Object.entries(updateFields)) {
-        if (value && value !== foundRecord.getCellValue(field)) {
-          updates[field] = value;
-        }
-      }
+//       // Determine necessary updates based on new data provided
+//       for (let [field,value] of Object.entries(updateFields)) {
+//         if (value && value !== foundRecord.getCellValue(field)) {
+//           updates[field] = value;
+//         }
+//       }
 
-      if (Object.keys(updates).length > 0) {
-        await table.updateRecordAsync(foundRecord.id,updates);
-        console.log('Updated Record',{ Record_ID: foundRecord.id,Updates: updates });
-        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
-      } else {
-        console.log('Found Record',{ Record_ID: foundRecord.id });
-        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
-      }
-    } else if (hasData) {
-      const newRecordId = await table.createRecordAsync({ ...createBlob });
-      console.log('New Record Created',{ newRecordId });
-      return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
-    }
-  } catch (error) {
-    console.error('Error processing records:',error);
-    return { searchable_id,Record_ID: "",Action_Status: "Error" };
-  }
-}
+//       if (Object.keys(updates).length > 0) {
+//         await table.updateRecordAsync(foundRecord.id,updates);
+//         console.log('Updated Record',{ Record_ID: foundRecord.id,Updates: updates });
+//         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
+//       } else {
+//         console.log('Found Record',{ Record_ID: foundRecord.id });
+//         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
+//       }
+//     } else if (hasData) {
+//       const newRecordId = await table.createRecordAsync({ ...createBlob });
+//       console.log('New Record Created',{ newRecordId });
+//       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
+//     }
+//   } catch (error) {
+//     console.error('Error processing records:',error);
+//     return { searchable_id,Record_ID: "",Action_Status: "Error" };
+//   }
+// }
 
-// Execute the function and handle outputs
-processRecords().then(result => {
-  if (result) {
-    // output.set("searchable_id",result.searchable_id);
-    output.set("Record_ID",result.Record_ID);
-    output.set("Action_Status",result.Action_Status);
-  } else {
-    throw new Error("No results returned in People script")
-  }
-});
+// // Execute the function and handle outputs
+// processRecords().then(result => {
+//   if (result) {
+//     // output.set("searchable_id",result.searchable_id);
+//     output.set("Record_ID",result.Record_ID);
+//     output.set("Action_Status",result.Action_Status);
+//   } else {
+//     throw new Error("No results returned in People script")
+//   }
+// });
