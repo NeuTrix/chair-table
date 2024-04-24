@@ -26,27 +26,13 @@ const {
 } = inputs;
 
 const fieldNames = Object.keys(inputs)
-console.log(fieldNames)
-
-const createBlob = {
-  first_name,
-  middle_name,
-  last_name,
-  primary_email,
-  secondary_email,
-  primary_phone,
-  secondary_phone,
-  searchable_id,
-}
-
 const hasData = first_name && last_name && primary_email;
 
 async function processRecords() {
   try {
     const records = await table.selectRecordsAsync({ fields: fieldNames });
     const foundRecord = records.records.find(
-      //** TEST */
-      record => record.getCellValueAsString("searchable_id") === searchable_id + 99
+      record => record.getCellValueAsString("searchable_id") === searchable_id;
     );
 
     if (!hasData) {
