@@ -14,43 +14,25 @@ const inputs = {
   searchable_id: inputConfig.searchable_id[0],
 }
 
-const {
-  first_name,
-  middle_name,
-  last_name,
-  primary_email,
-  secondary_email,
-  primary_phone,
-  secondary_phone,
-  searchable_id
-} = inputs;
-
-const fieldNames = Object.keys(inputs)
-const hasData = first_name && last_name && primary_email;
-
 async function processRecords() {
+  const { searchable_id } = inputs;
+  const hasData = inputs.first_name && inputs.last_name && inputs.primary_email;
   try {
-    const records = await table.selectRecordsAsync({ fields: fieldNames });
+    const records = await table.selectRecordsAsync({ fields: Object.keys(inputs) });
     const foundRecord = records.records.find(
-      record => record.getCellValueAsString("searchable_id") === searchable_id;
+      record => record.getCellValueAsString("searchable_id") === searchable_id
     );
 
     if (!hasData) {
-      console.error("Missing person information");
       Action_Status: "Error"
       throw new Error("Missing person information");
     };
 
     if (foundRecord) {
       let updates = {};
-      const updateFields = {
-        primary_phone,
-        secondary_phone,
-        secondary_email,
-      };
 
       // Determine necessary updates based on new data provided
-      for (let [field,value] of Object.entries(updateFields)) {
+      for (let [field,value] of Object.entries(inputs)) {
         if (value && value !== foundRecord.getCellValue(field)) {
           updates[field] = value;
         }
@@ -59,18 +41,22 @@ async function processRecords() {
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id,updates);
         console.log('Updated Record',{ Record_ID: foundRecord.id,Updates: updates });
+
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
       } else {
         console.log('Found Record',{ Record_ID: foundRecord.id });
+
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
       }
     } else if (hasData) {
       const newRecordId = await table.createRecordAsync({ ...inputs });
       console.log('New Record Created',{ newRecordId });
+
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
     }
   } catch (error) {
     console.error('Error processing records:',error);
+
     return { searchable_id,Record_ID: "",Action_Status: "Error" };
   }
 }
