@@ -1,18 +1,28 @@
-// Constants and Initial Setup
+// // Constants and Initial Setup
 const table = base.getTable("People");
 const inputConfig = input.config();
 
-// Extract first item of each array from input configuration
-const inputs = {
-  first_name: inputConfig.first_name[0],
-  middle_name: inputConfig.middle_name[0],
-  last_name: inputConfig.last_name[0],
-  primary_email: inputConfig.primary_email[0],
-  secondary_email: inputConfig.secondary_email[0],
-  primary_phone: inputConfig.primary_phone[0],
-  secondary_phone: inputConfig.secondary_phone[0],
-  searchable_id: inputConfig.searchable_id[0],
+let inputFields = [
+  "first_name",
+  "middle_name",
+  "last_name",
+  "primary_email",
+  "secondary_email",
+  "primary_phone",
+  "secondary_phone",
+  "searchable_id",
+]
+
+function createInputs(inputFields) {
+  let inputsTest = {};
+  inputFields.forEach(field => {
+    inputsTest[field] = inputConfig[field][0];
+  })
+
+  return inputsTest;
 }
+
+let inputs = createInputs(inputFields);
 
 async function processRecords() {
   const { searchable_id } = inputs;
