@@ -3,16 +3,18 @@ const table = base.getTable("People");
 const inputConfig = input.config();
 
 // Extract first item of each array from input configuration
-let inputs = {
+const inputs = {
   first_name: inputConfig.first_name[0],
   middle_name: inputConfig.middle_name[0],
   last_name: inputConfig.last_name[0],
   primary_email: inputConfig.primary_email[0],
   secondary_email: inputConfig.secondary_email[0],
   primary_phone: inputConfig.primary_phone[0],
-  secondary_phone: inputConfig.secondary_phone[0],
+  secondary_phone: '9992828288',
+  // secondary_phone: inputConfig.secondary_phone[0],
   searchable_id: inputConfig.searchable_id[0],
 }
+console.log({ inputs })
 
 const {
   first_name,
@@ -25,7 +27,8 @@ const {
   searchable_id
 } = inputs;
 
-const fields = Object.keys(inputs)
+const fieldNames = Object.keys(inputs)
+console.log(fieldNames)
 
 const createBlob = {
   first_name,
@@ -34,7 +37,7 @@ const createBlob = {
   primary_email,
   secondary_email,
   primary_phone,
-  // secondary_phone,
+  secondary_phone,
   searchable_id,
 }
 
@@ -42,7 +45,7 @@ const hasData = first_name && last_name && primary_email;
 
 async function processRecords() {
   try {
-    const records = await table.selectRecordsAsync({ ...fields });
+    const records = await table.selectRecordsAsync({ ...fieldNames });
     const foundRecord = records.records.find(
       //** TEST */
       record => record.getCellValueAsString("searchable_id") === searchable_id + 99
