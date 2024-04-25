@@ -1,7 +1,8 @@
 // Constants and Initial Setup
-const table = base.getTable("People");
+const table = base.getTable("People"); //** Manual Update */
 const inputConfig = input.config();
 
+//** Manual Update */
 const inputFields = [
   "first_name",
   "middle_name",
@@ -32,9 +33,12 @@ async function addNormativeDataLink(Record_ID) {
   });
 }
 
+//** Manual Update */
+// todo: make this configurable
+const hasData = inputs.first_name && inputs.last_name && inputs.primary_email;
+
 async function processRecords() {
   const { searchable_id } = inputs;
-  const hasData = inputs.first_name && inputs.last_name && inputs.primary_email;
 
   try {
     const records = await table.selectRecordsAsync({ fields: Object.keys(inputs) });
