@@ -29,7 +29,6 @@ const inputs = createInputs(inputFields);
 
 //** Manual */
 const hasData = inputs.event_name;
-console.log({ hasData: inputs.event_name })
 
 //** Attach the source of normative data */
 async function addNormativeDataLink(Record_ID) {
