@@ -24,8 +24,13 @@ function createInputs(inputFields) {
 
 const inputs = createInputs(inputFields);
 
-const ID_Normative_Data = inputConfig.ID_Normative_Data[0];
-console.log({ ID_Normative_Data })/////////////
+//** Attach the source of normative data */
+async function addNormativeDataLink(Record_ID) {
+  const ID_Normative_Data = inputConfig.ID_Normative_Data[0];
+  await table.updateRecordAsync(Record_ID,{
+    "ID_Normative_Data": [{ id: ID_Normative_Data }]
+  });
+}
 
 async function processRecords() {
   const { searchable_id } = inputs;
@@ -57,19 +62,13 @@ async function processRecords() {
         await table.updateRecordAsync(foundRecord.id,updates);
         console.log('Updated Record',{ Record_ID: foundRecord.id,Updates: updates });
 
-        //** Attach the source of normative data */
-        await table.updateRecordAsync(foundRecord.id,{
-          "ID_Normative_Data": [{ id: ID_Normative_Data }]
-        });
+        await addNormativeDataLink(foundRecord.id);
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
 
       } else {
 
-        //** Attach the source of normative data */
-        await table.updateRecordAsync(foundRecord.id,{
-          "ID_Normative_Data": [{ id: ID_Normative_Data }]
-        });
+        await addNormativeDataLink(foundRecord.id);
 
         //** Found */
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
@@ -80,10 +79,7 @@ async function processRecords() {
       //** Create */
       const newRecordId = await table.createRecordAsync({ ...inputs });
 
-      //** Attach the source of normative data */
-      await table.updateRecordAsync(newRecordId,{
-        "ID_Normative_Data": [{ id: ID_Normative_Data }]
-      });
+      await addNormativeDataLink(newRecordId);
 
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
     }
