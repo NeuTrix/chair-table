@@ -28,6 +28,14 @@ function createInputs(inputFields) {
 const inputs = createInputs(inputFields);
 const hasData = inputs.company_website;
 
+//** Attach the source of normative data */
+async function addNormativeDataLink(Record_ID) {
+  const ID_Normative_Data = inputConfig.ID_Normative_Data[0];
+  await table.updateRecordAsync(Record_ID,{
+    "ID_Normative_Data": [{ id: ID_Normative_Data }]
+  });
+}
+
 async function processRecords() {
   const { searchable_id } = inputs;
   try {
@@ -38,7 +46,7 @@ async function processRecords() {
 
     if (!hasData) {
       Action_Status: "Error"
-      throw new Error("Missing person information");
+      throw new Error("Missing information");
     };
 
     if (foundRecord) {
@@ -53,15 +61,17 @@ async function processRecords() {
 
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id,updates);
-        console.log('Updated Record',{ Record_ID: foundRecord.id,Updates: updates });
+        await addNormativeDataLink(foundRecord.id);
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
       } else {
+        await addNormativeDataLink(foundRecord.id);
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
       }
     } else if (hasData) {
       const newRecordId = await table.createRecordAsync({ ...inputs });
+      await addNormativeDataLink(newRecordId);
 
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
     }
