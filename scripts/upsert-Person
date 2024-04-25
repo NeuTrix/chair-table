@@ -44,7 +44,7 @@ async function processRecords() {
 
     if (!hasData) {
       Action_Status: "Error"
-      throw new Error("Missing person information");
+      throw new Error("Missing information");
     };
 
     if (foundRecord) {
@@ -60,25 +60,20 @@ async function processRecords() {
       //** Update */
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id,updates);
-        console.log('Updated Record',{ Record_ID: foundRecord.id,Updates: updates });
-
         await addNormativeDataLink(foundRecord.id);
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
 
       } else {
-
+        //** Found */
         await addNormativeDataLink(foundRecord.id);
 
-        //** Found */
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
       }
 
     } else if (hasData) {
-
       //** Create */
       const newRecordId = await table.createRecordAsync({ ...inputs });
-
       await addNormativeDataLink(newRecordId);
 
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
