@@ -1,86 +1,105 @@
-// // Constants and Initial Setup
-const table = base.getTable("Organizations");
+// Constants and Initial Setup
 const inputConfig = input.config();
+const table = base.getTable(inputConfig.input_Table_Name);
+const hasData = inputConfig.input_Validation_Field[0];
 
-let inputFields = [
-  "company_name",
-  "company_website",
-  "company_email",
-  "company_phone",
-  "searchable_id", // using company website
-]
+// Grab field names from inputs, excluding ID and Table fields
+const fields = Object.keys(inputConfig).filter(key => {
+  return (
+    key.substring(0,3) !== "ID_" &&
+    !key.includes("input")
+  )
+})
+// console.log({fields}) // Inspect fields
 
-function createInputs(inputFields) {
-  let inputsTest = {};
-  inputFields.forEach(field => {
-    let value = inputConfig[field][0];
-    inputsTest[field] = value
+// Grab Record-Link-IDs from inputs, excluding ID and Table fields
+const recordLinkNames = Object.keys(inputConfig).filter(key => {
+  return (
+    key.substring(0,3) === "ID_" &&
+    !key.includes("input")
+  )
+})
+// console.log({ recordLinkNames }) // Inspect fields
 
-    // ensure clean searchable_id for company web url
+function createInputs(fieldArray) {
+  let fields = {};
+  fieldArray.forEach(field => {
+    const value = inputConfig[field][0];
+    fields[field] = value
+    // console.log({field, value) // Inspect field and value
+
+    // ensure clean searchable_id
     if (field === "searchable_id") {
-      inputsTest[field] = value.trim().toLowerCase();
+      fields[field] = value ? value.trim().toLowerCase() : null;
     }
   })
 
-  return inputsTest;
+  return fields;
 }
 
-const inputs = createInputs(inputFields);
-const hasData = inputs.company_website;
-
 //** Attach the source of normative data */
-async function addNormativeDataLink(Record_ID) {
-  const ID_Normative_Data = inputConfig.ID_Normative_Data[0];
-  await table.updateRecordAsync(Record_ID,{
-    "ID_Normative_Data": [{ id: ID_Normative_Data }]
-  });
+async function addNormativeDataLink(Record_ID,recordLinkNames) {
+  recordLinkNames.forEach(name => {
+    table.updateRecordAsync(Record_ID,{
+      [name]: [{ id: inputConfig[name][0] }]
+    });
+  })
 }
 
 async function processRecords() {
+  const inputs = createInputs(fields);
   const { searchable_id } = inputs;
+
+  let Record_ID = null;
+  let Action_Status = null;
+
   try {
-    const records = await table.selectRecordsAsync({ fields: Object.keys(inputs) });
+    const records = await table.selectRecordsAsync({ fields });
     const foundRecord = records.records.find(
       record => record.getCellValueAsString("searchable_id") === searchable_id
     );
 
     if (!hasData) {
-      Action_Status: "Error"
+      Action_Status = "Error";
       throw new Error("Missing information");
     };
 
     if (foundRecord) {
       let updates = {};
+      Record_ID = foundRecord.id;
 
       // Determine necessary updates based on new data provided
-      for (let [field,value] of Object.entries(inputs)) {
+      for (const [field,value] of Object.entries(inputs)) {
         if (value && value !== foundRecord.getCellValue(field)) {
           updates[field] = value;
         }
       }
 
+      //** Update Record */
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id,updates);
-        await addNormativeDataLink(foundRecord.id);
+        Action_Status = "Updated";
 
-        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
       } else {
-        await addNormativeDataLink(foundRecord.id);
-
-        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
+        //** Found Record */
+        Action_Status = "Found";
       }
     } else if (hasData) {
+      //** Create Record */
       const newRecordId = await table.createRecordAsync({ ...inputs });
-      await addNormativeDataLink(newRecordId);
-
-      return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
+      Record_ID = newRecordId;
+      Action_Status = "Created";
     }
+
+    await addNormativeDataLink(Record_ID,recordLinkNames);
+
+    return { Record_ID,Action_Status }
   } catch (error) {
     throw new Error(`Error processing records: ${error}`);
   }
 }
 
-// Execute the function and handle outputs
+//** Execute the function and handle outputs */
 processRecords().then(result => {
   if (result) {
     output.set("Record_ID",result.Record_ID);
@@ -89,4 +108,4 @@ processRecords().then(result => {
     output.set("Action_Status","Error");
     throw new Error("No results returned in People script")
   }
-});
+})
