@@ -1,50 +1,94 @@
-// Set the search table name and find the table
-const searchTable = "Guest_Roles"
-let table = base.getTable(searchTable);
+// // Constants and Initial Setup
+const table = base.getTable("Tickets");
+const inputConfig = input.config();
 
-// Initiate the config
-let inputConfig = input.config();
-let { Person_ID } = inputConfig;
+let inputFields = [
+  "ticket_number",
+  "ticket_price",
+  "ticket_package",
+  "order_date",
+  "order_number",
+  "searchable_id", // using event name
+]
 
-// Initiate variables
-let Record_ID = "";
-let Action_Status = 'Null';
+function createInputs(inputFields) {
+  let inputsTest = {};
+  inputFields.forEach(field => {
+    let value = inputConfig[field][0];
+    inputsTest[field] = value
+    // ensure clean searchable_id for company web url
+    if (field === "searchable_id") {
+      inputsTest[field] = value.trim().toLowerCase();
+    }
+  })
 
-// Get the records
-let guests = await table.selectRecordsAsync({ fields: ["ID-Person"] });
+  return inputsTest;
+}
 
-// Find the guests (Linked Table)
-let foundRecords = guests.records.find(item => {
-  let person = item.getCellValue("ID-Person");
-  // Ensure person is not null and the array is not empty
-  return person && person.length > 0 && person[0].id === Person_ID;
-});
+const inputs = createInputs(inputFields);
 
-// Updated || Found
-if (foundRecords) {
-  Record_ID = foundRecords.id;
-  Action_Status = "Found";
-  console.log('Found Record',{ Record_ID });
-} else {
-  // Create a new record if no existing record is found
+//** Manual */
+const hasData = inputs.ticket_number;
+
+//** Attach the source of normative data */
+async function addNormativeDataLink(Record_ID) {
+  const ID_Normative_Data = inputConfig.ID_Normative_Data[0];
+  await table.updateRecordAsync(Record_ID,{
+    "ID_Normative_Data": [{ id: ID_Normative_Data }]
+  });
+}
+
+async function processRecords() {
+  const { searchable_id } = inputs;
   try {
-    let newRecord = await table.createRecordAsync({
-      "ID-Person": [{ id: Person_ID }]
-    });
-    Record_ID = newRecord.id;  // Use .id of the result directly
-    Action_Status = "Created";
-    console.log('New Record Created',{ Record_ID });
+    const records = await table.selectRecordsAsync({ fields: Object.keys(inputs) });
+    const foundRecord = records.records.find(
+      record => record.getCellValueAsString("searchable_id") === searchable_id
+    );
+
+    if (!hasData) {
+      Action_Status: "Error"
+      throw new Error("Missing information");
+    };
+
+    if (foundRecord) {
+      let updates = {};
+
+      // Determine necessary updates based on new data provided
+      for (let [field,value] of Object.entries(inputs)) {
+        if (value && value !== foundRecord.getCellValue(field)) {
+          updates[field] = value;
+        }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await table.updateRecordAsync(foundRecord.id,updates);
+        await addNormativeDataLink(foundRecord.id);
+
+        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
+      } else {
+        await addNormativeDataLink(foundRecord.id);
+
+        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
+      }
+    } else if (hasData) {
+      const newRecordId = await table.createRecordAsync({ ...inputs });
+      await addNormativeDataLink(newRecordId);
+
+      return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
+    }
   } catch (error) {
-    console.error('Failed to create new record:',error);
-    Record_ID = "";  // Reset Record_ID in case of error
-    Action_Status = "Error";
+    throw new Error(`Error processing records: ${error}`);
   }
 }
 
-// Ensure that Record_ID and Action_Status are defined
-Record_ID = Record_ID || "";  // Ensure Record_ID is not undefined
-Action_Status = Action_Status || "Undefined Status";  // Provide a default status if not set
-
-// Set outputs safely
-output.set("Record_ID",Record_ID);
-output.set("Action_Status",Action_Status);
+// Execute the function and handle outputs
+processRecords().then(result => {
+  if (result) {
+    output.set("Record_ID",result.Record_ID);
+    output.set("Action_Status",result.Action_Status);
+  } else {
+    output.set("Action_Status","Error");
+    throw new Error("No results returned in People script")
+  }
+});
