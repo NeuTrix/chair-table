@@ -16,7 +16,8 @@ function createInputs(inputFields) {
   inputFields.forEach(field => {
     let value = inputConfig[field][0];
     inputsTest[field] = value
-    // ensure clean searchable_id for company web url
+
+    // ensure clean searchable_id
     if (field === "searchable_id") {
       inputsTest[field] = value.trim().toLowerCase();
     }
@@ -29,34 +30,11 @@ const inputs = createInputs(inputFields);
 
 //** => Manually update this */
 const hasData = inputs.ticket_number;
-const ID_Package = inputConfig.ID_Package[0];
+
 const recordLinkNames = [
   "ID_Normative_Data",
-  "ID_Normative_Data",
-  // "ID_Package",
+  "ID_Package",
 ]
-
-
-// ** Find Package Record ID * /
-async function asyncFindPackageRecordId() {
-  const table = base.getTable("Packages");
-  const ID_Package = inputConfig.ID_Package[0];
-
-  try {
-    const records = await table.selectRecordsAsync({ fields: ["Name"] });
-    const foundRecord = records.records.find(
-      record => record.getCellValueAsString("Name") === ID_Package
-    );
-
-    const Record_ID = foundRecord && foundRecord.id;
-    console.log('Found ID_Package Reord ID',{ Record_ID })
-
-    return Record_ID;
-
-  } catch (error) {
-    throw new Error(`Error processing ID_Packages: ${error}`);
-  }
-}
 
 //** Attach the source of normative data */
 async function addNormativeDataLink(Record_ID,recordLinkNames) {
@@ -123,4 +101,3 @@ processRecords().then(result => {
     throw new Error("No results returned in People script")
   }
 });
-
