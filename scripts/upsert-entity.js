@@ -6,6 +6,7 @@ const hasData = inputConfig.input_Validation_Field[0];
 // Grab field names from inputs, excluding ID and Table fields
 const fields = Object.keys(inputConfig).filter(key => {
   return (
+    // todo: change to "includes"
     key.substring(0,3) !== "ID_" &&
     !key.includes("input")
   )
@@ -21,6 +22,7 @@ const recordLinkNames = Object.keys(inputConfig).filter(key => {
 })
 // console.log({ recordLinkNames }) // Inspect fields
 
+// todo: change name to asyncCreateInputs
 function createInputs(fieldArray) {
   let fields = {};
   fieldArray.forEach(field => {
@@ -55,6 +57,8 @@ async function processRecords() {
 
   try {
     const records = await table.selectRecordsAsync({ fields });
+    // console.log({R:records.records})//** Inspect records *
+    // Todo:  clarify var names
     const foundRecord = records.records.find(
       record => record.getCellValueAsString("searchable_id") === searchable_id
     );
