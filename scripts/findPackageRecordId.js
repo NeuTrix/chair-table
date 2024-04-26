@@ -11,7 +11,7 @@ async function findPackageRecordId() {
       record => record.getCellValueAsString("Name") === Name
     );
 
-    const Record_ID = foundRecord && foundRecord.id;
+    const Record_ID = [foundRecord && foundRecord.id];
     console.log('Found ID_Package Reord ID',{ Record_ID })
 
     return { Record_ID };
