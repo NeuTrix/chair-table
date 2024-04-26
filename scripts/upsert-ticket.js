@@ -27,15 +27,44 @@ function createInputs(inputFields) {
 
 const inputs = createInputs(inputFields);
 
-//** Manual */
+//** => Manually update this */
 const hasData = inputs.ticket_number;
+const ID_Package = inputConfig.ID_Package[0];
+const recordLinkNames = [
+  "ID_Normative_Data",
+  "ID_Normative_Data",
+  // "ID_Package",
+]
+
+
+// ** Find Package Record ID * /
+async function asyncFindPackageRecordId() {
+  const table = base.getTable("Packages");
+  const ID_Package = inputConfig.ID_Package[0];
+
+  try {
+    const records = await table.selectRecordsAsync({ fields: ["Name"] });
+    const foundRecord = records.records.find(
+      record => record.getCellValueAsString("Name") === ID_Package
+    );
+
+    const Record_ID = foundRecord && foundRecord.id;
+    console.log('Found ID_Package Reord ID',{ Record_ID })
+
+    return Record_ID;
+
+  } catch (error) {
+    throw new Error(`Error processing ID_Packages: ${error}`);
+  }
+}
 
 //** Attach the source of normative data */
-async function addNormativeDataLink(Record_ID) {
-  const ID_Normative_Data = inputConfig.ID_Normative_Data[0];
-  await table.updateRecordAsync(Record_ID,{
-    "ID_Normative_Data": [{ id: ID_Normative_Data }]
-  });
+async function addNormativeDataLink(Record_ID,recordLinkNames) {
+  recordLinkNames.forEach(name => {
+    table.updateRecordAsync(Record_ID,{
+      [name]: [{ id: inputConfig[name][0] }]
+    });
+  })
 }
 
 async function processRecords() {
@@ -61,19 +90,21 @@ async function processRecords() {
         }
       }
 
+      //** Update Record */
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id,updates);
-        await addNormativeDataLink(foundRecord.id);
+        await addNormativeDataLink(foundRecord.id,recordLinkNames);
 
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
       } else {
-        await addNormativeDataLink(foundRecord.id);
-
+        //** Found Record */
+        await addNormativeDataLink(foundRecord.id,recordLinkNames);
         return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
       }
     } else if (hasData) {
+      //** Create Record */
       const newRecordId = await table.createRecordAsync({ ...inputs });
-      await addNormativeDataLink(newRecordId);
+      await addNormativeDataLink(newRecordId,recordLinkNames);
 
       return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
     }
@@ -82,7 +113,7 @@ async function processRecords() {
   }
 }
 
-// Execute the function and handle outputs
+//** Execute the function and handle outputs */
 processRecords().then(result => {
   if (result) {
     output.set("Record_ID",result.Record_ID);
@@ -92,3 +123,4 @@ processRecords().then(result => {
     throw new Error("No results returned in People script")
   }
 });
+
