@@ -4,7 +4,7 @@ const table = base.getTable(inputConfig.input_Table_Name);
 const hasData = inputConfig.input_Validation_Field[0];
 
 // Grab field names from inputs, excluding ID and Table fields
-let fields = Object.keys(inputConfig).filter(key => {
+const fields = Object.keys(inputConfig).filter(key => {
   return (
     key.substring(0,3) !== "ID_" &&
     !key.includes("input")
@@ -12,24 +12,27 @@ let fields = Object.keys(inputConfig).filter(key => {
 })
 // console.log({fields}) // Inspect fields
 
+// const fields =[]; //** TEST */
+
 // Grab Record-Link-IDs from inputs, excluding ID and Table fields
-let recordLinkNames = Object.keys(inputConfig).filter(key => {
+const recordLinkNames = Object.keys(inputConfig).filter(key => {
   return (
     key.substring(0,3) === "ID_" &&
     !key.includes("input")
   )
 })
-console.log({ recordLinkNames }) // Inspect fields
+// console.log({ recordLinkNames }) // Inspect fields
 
 function createInputs(fieldArray) {
   let fields = {};
   fieldArray.forEach(field => {
-    let value = inputConfig[field][0];
+    const value = inputConfig[field][0];
     fields[field] = value
     // console.log({field, value) // Inspect field and value
+
     // ensure clean searchable_id
     if (field === "searchable_id") {
-      fields[field] = value.trim().toLowerCase();
+      fields[field] = value ? value.trim().toLowerCase() : null;
     }
   })
 
@@ -64,7 +67,7 @@ async function processRecords() {
       let updates = {};
 
       // Determine necessary updates based on new data provided
-      for (let [field,value] of Object.entries(inputs)) {
+      for (const [field,value] of Object.entries(inputs)) {
         if (value && value !== foundRecord.getCellValue(field)) {
           updates[field] = value;
         }

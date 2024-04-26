@@ -14,7 +14,7 @@ function createInputs(inputFields) {
   let inputsTest = {};
   inputFields.forEach(field => {
     let value = inputConfig[field][0];
-    inputsTest[field] = value
+    inputsTest[field] = value;
 
     // ensure clean searchable_id for company web url
     if (field === "searchable_id") {
