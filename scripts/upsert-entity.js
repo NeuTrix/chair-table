@@ -12,8 +12,6 @@ const fields = Object.keys(inputConfig).filter(key => {
 })
 // console.log({fields}) // Inspect fields
 
-// const fields =[]; //** TEST */
-
 // Grab Record-Link-IDs from inputs, excluding ID and Table fields
 const recordLinkNames = Object.keys(inputConfig).filter(key => {
   return (
@@ -39,8 +37,6 @@ function createInputs(fieldArray) {
   return fields;
 }
 
-const inputs = createInputs(fields);
-
 //** Attach the source of normative data */
 async function addNormativeDataLink(Record_ID,recordLinkNames) {
   recordLinkNames.forEach(name => {
@@ -51,7 +47,12 @@ async function addNormativeDataLink(Record_ID,recordLinkNames) {
 }
 
 async function processRecords() {
+  const inputs = createInputs(fields);
   const { searchable_id } = inputs;
+
+  let Record_ID = null;
+  let Action_Status = null;
+
   try {
     const records = await table.selectRecordsAsync({ fields });
     const foundRecord = records.records.find(
@@ -59,12 +60,13 @@ async function processRecords() {
     );
 
     if (!hasData) {
-      Action_Status: "Error"
+      Action_Status = "Error";
       throw new Error("Missing information");
     };
 
     if (foundRecord) {
       let updates = {};
+      Record_ID = foundRecord.id;
 
       // Determine necessary updates based on new data provided
       for (const [field,value] of Object.entries(inputs)) {
@@ -76,21 +78,22 @@ async function processRecords() {
       //** Update Record */
       if (Object.keys(updates).length > 0) {
         await table.updateRecordAsync(foundRecord.id,updates);
-        await addNormativeDataLink(foundRecord.id,recordLinkNames);
+        Action_Status = "Updated";
 
-        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Updated" };
       } else {
         //** Found Record */
-        await addNormativeDataLink(foundRecord.id,recordLinkNames);
-        return { searchable_id,Record_ID: foundRecord.id,Action_Status: "Found" };
+        Action_Status = "Found";
       }
     } else if (hasData) {
       //** Create Record */
       const newRecordId = await table.createRecordAsync({ ...inputs });
-      await addNormativeDataLink(newRecordId,recordLinkNames);
-
-      return { searchable_id,Record_ID: newRecordId,Action_Status: "Created" };
+      Record_ID = newRecordId;
+      Action_Status = "Created";
     }
+
+    await addNormativeDataLink(Record_ID,recordLinkNames);
+
+    return { Record_ID,Action_Status }
   } catch (error) {
     throw new Error(`Error processing records: ${error}`);
   }
@@ -105,4 +108,4 @@ processRecords().then(result => {
     output.set("Action_Status","Error");
     throw new Error("No results returned in People script")
   }
-});
+})
