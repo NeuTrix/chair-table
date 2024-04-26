@@ -26,7 +26,7 @@ function createInputs(fieldArray) {
   fieldArray.forEach(field => {
     const value = inputConfig[field][0];
     fields[field] = value
-    // console.log({field, value) // Inspect field and value
+    // console.log({field, value}) // Inspect field and value
 
     // ensure clean searchable_id
     if (field === "searchable_id") {
@@ -102,7 +102,7 @@ async function processRecords() {
 //** Execute the function and handle outputs */
 processRecords().then(result => {
   if (result) {
-    output.set("Record_ID",result.Record_ID);
+    output.set("Record_ID",[result.Record_ID]);
     output.set("Action_Status",result.Action_Status);
   } else {
     output.set("Action_Status","Error");
