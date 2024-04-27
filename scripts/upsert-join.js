@@ -14,12 +14,12 @@ let selected = await table.selectRecordsAsync({ fields })
 // console.log({ selected }) //** Inspect */
 
 // ? find the guests_events (Linked Table)
-const inputs = await createInputs(fields);
+const inputs = await asyncCreateInputs(fields);
 const [firstSet,secondSet] = Object.entries(inputs);
 const [first_field,First_ID] = firstSet;
 const [second_field,Second_ID] = secondSet;
 
-async function createInputs(fieldArray) {
+async function asyncCreateInputs(fieldArray) {
   let fields = {};
   fieldArray.forEach(field => {
     const value = inputConfig[field][0];
