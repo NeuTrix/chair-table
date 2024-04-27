@@ -9,8 +9,8 @@ const Role_ID = Role_Value[0];
 // console.log({ Role_Key,Role_ID, Role_Value}) //** Inspect */
 
 // create list of field ids excluding the Roles
-const getFilteredFields = () => {
-  const fields = Object.keys(inputConfig).filter(field => {
+const getFilteredFields = (config) => {
+  const fields = Object.keys(config).filter(field => {
     return (
       !field.includes("Role") // excludes Role fields
       && !field.includes("input") // excludes input fields
@@ -20,17 +20,26 @@ const getFilteredFields = () => {
   });
   return fields;
 }
-
-const filteredFields = getFilteredFields();
+const filteredFields = getFilteredFields(inputConfig);
 console.log({ filteredFields }) //** Inspect */
 
-// // find the records for a linked record
-// const filteredRecordLinks = Object.keys(inputConfig).filter(field => {
-//   return (
-//     field.includes("ID_") // includes linked fields
+const getFilteredRecordLinks = (config) => {
+  const recordLinks = Object.keys(config).filter(field => {
+    return (
+      field.includes("ID_") // includes linked fields
+    );
+  });
+  return recordLinks;
+}
+const filteredRecordLinks = getFilteredRecordLinks(inputConfig);
+console.log({ filteredRecordLinks }) //** Inspect */
+
+// const getSelectedRecords = async (inputConfig) => {
+//   const records = await table.selectRecordsAsync(
+//     { fields: filteredFields }
 //   );
-// });
-// console.log({ filteredRecordLinks }) //** Inspect */
+//   return records;
+// }
 
 // // find the records for a linked record
 // const records = await table.selectRecordsAsync(
