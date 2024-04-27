@@ -6,39 +6,36 @@ const hasData = inputConfig.input_Validation_Field[0];
 // Grab field names from inputs, excluding ID and Table fields
 const fields = Object.keys(inputConfig).filter(key => {
   return (
-    // todo: change to "includes"
-    key.substring(0,3) !== "ID_" &&
+    !key.includes("ID_") &&
     !key.includes("input")
   )
 })
-// console.log({fields}) // Inspect fields
+console.log({ fields }) // Inspect fields
 
 // Grab Record-Link-IDs from inputs, excluding ID and Table fields
 const recordLinkNames = Object.keys(inputConfig).filter(key => {
   return (
-    key.substring(0,3) === "ID_" &&
+    key.includes("ID_") &&
     !key.includes("input")
   )
 })
 // console.log({ recordLinkNames }) // Inspect fields
+// todo extract to its own function
+function asyncCreateInputsFromKeys(fieldArray) {
+  let inputs = {};
+  fieldArray.forEach(key => {
+    const value = inputConfig[key][0];
+    inputs[key] = value
 
-// todo: change name to asyncCreateInputs
-function createInputs(fieldArray) {
-  let fields = {};
-  fieldArray.forEach(field => {
-    const value = inputConfig[field][0];
-    fields[field] = value
-    // console.log({field, value}) // Inspect field and value
-
-    // ensure clean searchable_id
-    if (field === "searchable_id") {
-      fields[field] = value ? value.trim().toLowerCase() : null;
+    if (key === "searchable_id") {
+      inputs[key] = value ? value.trim().toLowerCase() : null;
     }
   })
 
-  return fields;
+  return inputs;
 }
 
+// todo extract to its own function
 //** Attach the source of normative data */
 async function addNormativeDataLink(Record_ID,recordLinkNames) {
   recordLinkNames.forEach(name => {
@@ -57,8 +54,8 @@ async function processRecords() {
 
   try {
     const records = await table.selectRecordsAsync({ fields });
-    // console.log({R:records.records})//** Inspect records *
-    // Todo:  clarify var names
+    // console.log({R:records.records}) //** Inspect records *
+
     const foundRecord = records.records.find(
       record => record.getCellValueAsString("searchable_id") === searchable_id
     );
@@ -107,7 +104,7 @@ async function processRecords() {
 processRecords().then(result => {
   if (result) {
     output.set("Record_ID",[result.Record_ID]);
-    output.set("Action_Status",result.Action_Status);
+    output.set("Action_Status",[result.Action_Status]);
   } else {
     output.set("Action_Status","Error");
     throw new Error("No results returned in People script")
