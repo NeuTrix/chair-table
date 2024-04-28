@@ -1,9 +1,10 @@
 // create a function to a record's single select field value in airtable
-// ========================================================
-
+//==================================================================
 //** Update Single Select */
 // 1) Provide this at the end of the file...
 // 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
+// 3) upate 'asyncProcessRecords' name
+// 4) ensure Table name is aligned in ID_Recipe_Data_Summary
 
 //** Execute the function and handle outputs */
 // @ts-ignore
@@ -26,7 +27,6 @@ const recipeRecord = await checklist.selectRecordAsync(
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
   { [input_Table_Name]: { name: `${Action_Status}` } }
 )
-
 
 // ========================================================
 
