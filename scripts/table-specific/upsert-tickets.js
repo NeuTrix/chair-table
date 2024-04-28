@@ -6,8 +6,9 @@ const hasData = inputConfig.input_Validation_Field[0];
 // Grab field names from inputs, excluding ID and Table fields
 let fields = Object.keys(inputConfig).filter(key => {
   return (
-    key.substring(0,3) !== "ID_" &&
-    !key.includes("input")
+    key.substring(0,3) !== "ID_"
+    && !key.includes("input")
+    && !key.includes("ID_Recipe_Data_Summary")
   )
 })
 // console.log({fields}) // Inspect fields
@@ -15,8 +16,9 @@ let fields = Object.keys(inputConfig).filter(key => {
 // Grab Record-Link-IDs from inputs, excluding ID and Table fields
 let recordLinkNames = Object.keys(inputConfig).filter(key => {
   return (
-    key.substring(0,3) === "ID_" &&
-    !key.includes("input")
+    key.substring(0,3) === "ID_"
+    && !key.includes("input")
+    && !key.includes("ID_Recipe_Data_Summary")
   )
 })
 // console.log({ recordLinkNames }) // Inspect fields
@@ -48,7 +50,7 @@ async function addNormativeDataLink(Record_ID,recordLinkNames) {
   })
 }
 
-async function processRecords() {
+async function asyncProcessRecords() {
   const { searchable_id } = inputs;
   try {
     const records = await table.selectRecordsAsync({ fields });
@@ -94,13 +96,31 @@ async function processRecords() {
   }
 }
 
+//==================================================================
+//** Update Single Select */
+// 1) Provide this at the end of the file...
+// 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
+// 3) upate 'asyncProcessRecords' name
+// 4) ensure Table name is aligned in ID_Recipe_Data_Summary
+
 //** Execute the function and handle outputs */
-processRecords().then(result => {
-  if (result) {
-    output.set("Record_ID",[result.Record_ID]);
-    output.set("Action_Status",[result.Action_Status]);
-  } else {
-    output.set("Action_Status",["Error"]);
-    throw new Error("No results returned in People script")
-  }
-});
+// @ts-ignore
+const { Record_ID,Action_Status } = await asyncProcessRecords();
+
+//** Set Outputs */
+output.set("Record_ID",[Record_ID]);
+output.set("Action_Status",[Action_Status]);
+
+//** Update Checklist Status */
+const checklist = base.getTable("Recipe_Checklist");
+// @ts-ignore
+const { ID_Recipe_Data_Summary,input_Table_Name } = inputConfig;
+
+const recipeRecord = await checklist.selectRecordAsync(
+  ID_Recipe_Data_Summary,
+  { fields: [input_Table_Name] }
+);
+
+recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
+  { [input_Table_Name]: { name: `${Action_Status}` } }
+)
