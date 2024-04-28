@@ -2,11 +2,12 @@
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_Table_Name);
 const hasData = inputConfig.input_Validation_Field[0];
+console.log({ hasData })/////////////////////////////////////////////////
 
 // Grab field names from inputs, excluding ID and Table fields
 let fields = Object.keys(inputConfig).filter(key => {
   return (
-    key.substring(0,3) !== "ID_"
+    !key.includes("ID_")
     && !key.includes("input")
     && !key.includes("ID_Recipe_Data_Summary")
   )
@@ -16,7 +17,7 @@ let fields = Object.keys(inputConfig).filter(key => {
 // Grab Record-Link-IDs from inputs, excluding ID and Table fields
 let recordLinkNames = Object.keys(inputConfig).filter(key => {
   return (
-    key.substring(0,3) === "ID_"
+    key.includes("ID_")
     && !key.includes("input")
     && !key.includes("ID_Recipe_Data_Summary")
   )
@@ -42,6 +43,7 @@ function createInputs(fieldArray) {
 const inputs = createInputs(fields);
 
 //** Attach the source of normative data */
+console.log({ recordLinkNames })//////
 async function addNormativeDataLink(Record_ID,recordLinkNames) {
   recordLinkNames.forEach(name => {
     table.updateRecordAsync(Record_ID,{
@@ -124,3 +126,4 @@ const recipeRecord = await checklist.selectRecordAsync(
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
   { [input_Table_Name]: { name: `${Action_Status}` } }
 )
+
