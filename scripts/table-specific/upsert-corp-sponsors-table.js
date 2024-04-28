@@ -113,11 +113,11 @@ async function asyncProcessRecords(params) {
 
 //** Execute the function and handle outputs */
 // @ts-ignore
-const { Record_ID,Action_Status } = await asyncProcessRecords({ inputConfig,Role_ID,Role_Key }); // best practice to pass the inputConfig
+const { Record_ID,Action_Status } = await asyncProcessRecords({ inputConfig,Role_ID,Role_Key });
 
 //** Set Outputs */
-// output.set("Record_ID",[Record_ID]);
-// output.set("Action_Status",[Action_Status]);
+output.set("Record_ID",[Record_ID]);
+output.set("Action_Status",[Action_Status]);
 
 //** Update Checklist Status */
 const checklist = base.getTable("Recipe_Checklist");
