@@ -100,7 +100,7 @@ async function asyncProcessRecords(params) {
     return { Record_ID,Action_Status }
 
   } catch (error) {
-    throw new Error(`Dab Nabbit! Something is not working in the Role script: ${error}`);
+    throw new Error(`Dab Nabbit! Something is not working in the ${input_Table_Name} script: ${error}`);
   }
 }
 
