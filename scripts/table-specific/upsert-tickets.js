@@ -2,7 +2,6 @@
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_Table_Name);
 const hasData = inputConfig.input_Validation_Field[0];
-console.log({ hasData })/////////////////////////////////////////////////
 
 // Grab field names from inputs, excluding ID and Table fields
 let fields = Object.keys(inputConfig).filter(key => {
@@ -126,4 +125,3 @@ const recipeRecord = await checklist.selectRecordAsync(
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
   { [input_Table_Name]: { name: `${Action_Status}` } }
 )
-
