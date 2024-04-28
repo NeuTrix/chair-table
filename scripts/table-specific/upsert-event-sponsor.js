@@ -9,11 +9,11 @@ const fields = Object.keys(inputConfig).filter(field => {
     && !field.includes("ID_Recipe_Data_Summary")
   )
 });
-console.log({ fields })//** Inspect */
+// console.log({fields})//** Inspect */
 
 // get the records
 let selected = await table.selectRecordsAsync({ fields })
-console.log({ selected }) //** Inspect */
+// console.log({ selected }) //** Inspect */
 
 async function asyncCreateInputs(fieldArray) {
   try {
@@ -48,7 +48,7 @@ let foundRecords = selected.records.find(
     // Investigate why this differs
     let record_One = record.getCellValue(first_field)[0];
     let record_Two = record.getCellValue(second_field)[0];
-    console.log({ record_One,record_Two,First_ID,Second_ID }) //** Inspect */
+    // console.log({record_One, record_Two, First_ID, Second_ID }) //** Inspect */
 
     return (
       record_One.id === First_ID &&
@@ -56,14 +56,14 @@ let foundRecords = selected.records.find(
     )
   }
 )
-console.log({ foundRecords }) //** Inspect */
+// console.log({foundRecords}) //** Inspect */
 
 // Updated || Found
 if (foundRecords) {
   Record_ID = foundRecords.id;
   Action_Status = "Found";
 
-  console.log('Found Record',{ foundRecords });
+  // console.log('Found Record',{ foundRecords });//** Inspect */
 }
 
 // Created
