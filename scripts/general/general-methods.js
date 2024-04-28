@@ -22,7 +22,7 @@ const recipeRecord = await checklist.selectRecordAsync(
 );
 
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
-  { [input_Table_Name]: { name: "Action_Status" } }
+  { [input_Table_Name]: { name: `${Action_Status}` } }
 )
 
 
