@@ -1,7 +1,9 @@
 // create a function to a record's single select field value in airtable
+// ========================================================
 
 //** Update Single Select */
-// Provide this at the end of the file...
+// 1) Provide this at the end of the file...
+// 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
 
 //** Execute the function and handle outputs */
 // @ts-ignore
