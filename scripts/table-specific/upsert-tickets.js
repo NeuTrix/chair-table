@@ -42,7 +42,6 @@ function createInputs(fieldArray) {
 const inputs = createInputs(fields);
 
 //** Attach the source of normative data */
-console.log({ recordLinkNames })//////
 async function addNormativeDataLink(Record_ID,recordLinkNames) {
   recordLinkNames.forEach(name => {
     table.updateRecordAsync(Record_ID,{
@@ -101,7 +100,7 @@ async function asyncProcessRecords() {
 //** Update Single Select */
 // 1) Provide this at the end of the file...
 // 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
-// 3) upate 'asyncProcessRecords' name
+// 3) update 'asyncProcessRecords' name
 // 4) ensure Table name is aligned in ID_Recipe_Data_Summary
 
 //** Execute the function and handle outputs */

@@ -92,6 +92,9 @@ if (!foundRecords) {
   }
 }
 
+output.set("Record_ID",[Record_ID]);
+output.set("Action_Status",[Action_Status]);
+
 //==================================================================
 //** Update Single Select */
 // 1) Provide this at the end of the file...
@@ -104,8 +107,8 @@ if (!foundRecords) {
 // const { Record_ID,Action_Status } = await asyncProcessRecords();
 
 //** Set Outputs */
-output.set("Record_ID",[Record_ID]);
-output.set("Action_Status",[Action_Status]);
+// output.set("Record_ID",[Record_ID]);
+// output.set("Action_Status",[Action_Status]);
 
 //** Update Checklist Status */
 const checklist = base.getTable("Recipe_Checklist");
