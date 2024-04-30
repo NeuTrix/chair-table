@@ -1,3 +1,4 @@
+//** version 2024.04.30.001 */
 // set the search table name and find the table
 // initiate the config
 const inputConfig = input.config();
