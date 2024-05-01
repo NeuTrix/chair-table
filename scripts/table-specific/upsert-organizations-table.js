@@ -1,7 +1,9 @@
+//** ORGANIZATION v.2024-04-30.001 */
 // Constants and Initial Setup
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_Table_Name);
 const hasData = inputConfig.input_Validation_Field[0];
+// console.log({hasData}) //** Inspect */
 
 // Grab field names from inputs, excluding ID and Table fields
 const fields = Object.keys(inputConfig).filter(key => {
@@ -105,7 +107,7 @@ async function asyncProcessRecords() {
 //** Update Single Select */
 // 1) Provide this at the end of the file...
 // 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
-// 3) upate 'asyncProcessRecords' name
+// 3) update 'asyncProcessRecords' name
 // 4) ensure Table name is aligned in ID_Recipe_Data_Summary
 
 //** Execute the function and handle outputs */
