@@ -6,14 +6,8 @@
 let inputConfig = input.config();
 
 // @ts-ignore
-let value_A = inputConfig[value_A];
-// @ts-ignore
-let value_B = inputConfig[value_B];
-// @ts-ignore
-let value_C = inputConfig[value_C];
-// @ts-ignore
-let value_D = inputConfig[value_D];
-// console.log({value_D}) //** Inspect */
+const { value_A,value_B,value_C,value_D } = inputConfig;
+console.log({ value_A,value_B,value_C,value_D }) //** Inspect */
 
 // ====================== SEARCHABLE NAME =======================
 // Function to create a searchable ID, refactored to prevent "--"
