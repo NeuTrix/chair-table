@@ -1,3 +1,5 @@
+// CONTACTS v.2024.05.04.001 
+// fixes null records errors
 // set the search table name and find the table
 //** SPECIAL CONFIGURATION */
 
@@ -7,7 +9,7 @@ const inputConfig = input.config();
 const contact = inputConfig.input_is_company_contact[0];
 // console.log({contact}) //** Inspect */
 
-//  Only run for corp contacts
+// Only run for corp contacts
 if (contact === "Yes") {
   const table = base.getTable(inputConfig.input_Table_Name);
 
@@ -46,13 +48,12 @@ if (contact === "Yes") {
 
   let foundRecords = selected.records.find(
     record => {
-      let record_One = record.getCellValue(first_field)[0];
-      let record_Two = record.getCellValue(second_field)[0];
-      // console.log({ record_One,record_Two })
-
+      let record_One = record.getCellValue(first_field);
+      let record_Two = record.getCellValue(second_field);
+      // cover for cases where field values are null
       return (
-        record_One.id === First_ID &&
-        record_Two.id === Second_ID
+        record_One && record_One[0].id === First_ID &&
+        record_Two && record_Two[0].id === Second_ID
       )
     }
   )
@@ -63,7 +64,7 @@ if (contact === "Yes") {
     Record_ID = foundRecords.id;
     Action_Status = "Found";
 
-    console.log('Found Record',{ foundRecords });
+    // console.log('Found Record',{ foundRecords })  //** Inspect */
   }
 
   // Created
@@ -77,14 +78,11 @@ if (contact === "Yes") {
 
       Record_ID = newRecordId;
       Action_Status = "Created";
-      console.log('New Record Created',{ newRecordId })
+      // console.log('New Record Created',{ newRecordId }) //** Inspect */
     } catch (error) {
       throw new Error("Faild to create Join Record")
     }
   }
-
-  output.set("Record_ID",[Record_ID]);
-  output.set("Action_Status",[Action_Status]);
 
   //==================================================================
   //** Update Single Select */
@@ -98,8 +96,8 @@ if (contact === "Yes") {
   // const { Record_ID,Action_Status } = await asyncProcessRecords();
 
   //** Set Outputs */
-  // output.set("Record_ID",[Record_ID]);
-  // output.set("Action_Status",[Action_Status]);
+  output.set("Record_ID",[Record_ID]);
+  output.set("Action_Status",[Action_Status]);
 
   //** Update Checklist Status */
   const checklist = base.getTable("Recipe_Checklist");
