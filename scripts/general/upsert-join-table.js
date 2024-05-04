@@ -45,7 +45,6 @@ let Action_Status = null;
 // todo: Need to cover edge cases where fields are not there for ID
 // similar to value && value or if inputs > 0
 
-
 let foundRecords = selected.records.find(
   record => {
 
