@@ -1,10 +1,10 @@
-//** Upsert ROLE v.2024.04.30.001 */
+//** Upsert ROLE v.2024.05.06.001 */
 // Constants and Initial Setup
 // => get the table and variables for roles
 const inputConfig = input.config();
 //@ts-ignore
-const { Role_Key,Role_Value,input_Table_Name } = inputConfig;
-const table = base.getTable(input_Table_Name);
+const { Role_Key,Role_Value,input_table_name } = inputConfig;
+const table = base.getTable(input_table_name);
 
 // @ts-ignore
 const Role_ID = Role_Value[0];
@@ -23,7 +23,6 @@ function getBasicFields(config) {
 
   return fields; // add Role Key to output
 }
-// ====================================================
 
 // ====================== MODULE ======================
 //** Create inputs object from base fields */
@@ -35,7 +34,6 @@ function createInputsFromKeys(fieldArray) {
   })
   return inputs;
 }
-// ====================================================
 
 // ====================== MODULE ======================
 //** Get the records */
@@ -44,7 +42,7 @@ async function asyncGetRecords(fieldArray) {
     { fields: fieldArray }
   );
   return records;
-} // ==================================================
+}
 
 // ====================== MODULE ======================
 //** Find record by Role ID */
@@ -54,7 +52,7 @@ async function asyncFindRecordByRoleId(records,Role_ID) {
     return record_Role.id === Role_ID;
   })
   return foundRecords;
-} // ==================================================
+}
 
 // ====================== MODULE ======================
 async function asyncProcessRecords(params) {
@@ -116,7 +114,7 @@ async function asyncProcessRecords(params) {
     throw new Error(`Dab Nabbit! Something is not working in the Role script: ${error}`);
   }
 
-} // ==================================================
+}
 
 // ====================== MODULE ======================
 //** Update Single Select */
@@ -127,7 +125,11 @@ async function asyncProcessRecords(params) {
 
 //** Execute the function and handle outputs */
 // @ts-ignore
-const { Record_ID,Action_Status } = await asyncProcessRecords({ inputConfig,Role_ID,Role_Key });
+const { Record_ID,Action_Status } = await asyncProcessRecords({
+  inputConfig,
+  Role_ID,
+  Role_Key
+});
 // console.log( { Record_ID,Action_Status } )//** Inspect */
 
 //** Set Outputs */
@@ -141,10 +143,10 @@ const { ID_Recipe_Data_Summary } = inputConfig;
 
 const recipeRecord = await checklist.selectRecordAsync(
   ID_Recipe_Data_Summary,
-  { fields: [input_Table_Name] }
+  { fields: [input_table_name] }
 );
 
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
-  { [input_Table_Name]: { name: `${Action_Status}` } }
+  { [input_table_name]: { name: `${Action_Status}` } }
 )
 
