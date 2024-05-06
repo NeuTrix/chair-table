@@ -1,3 +1,4 @@
+
 // Constants and Initial Setup
 // => get the table and variables for roles
 const inputConfig = input.config();
