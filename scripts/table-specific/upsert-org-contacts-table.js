@@ -1,17 +1,25 @@
-// CONTACTS v.2024.05.04.001 
+// CONTACTS v.2024.05.06.001 
 // fixes null records errors
 // set the search table name and find the table
 //** SPECIAL CONFIGURATION */
+
+//** INPUTS:
+/* input_table_name: Contacts
+/* ID_Person
+/* ID_Organization
+/* ID_Recipe_Data_Summary
+/* input_is_company_contact
+*/
 
 // initiate the config
 const inputConfig = input.config();
 // @ts-ignore
 const contact = inputConfig.input_is_company_contact[0];
-// console.log({contact}) //** Inspect */
+// console.log({contact,C: contact.toLowerCase()}) //** Inspect */
 
 // Only run for corp contacts
-if (contact === "Yes") {
-  const table = base.getTable(inputConfig.input_Table_Name);
+if (contact.toLowerCase() === "yes") {
+  const table = base.getTable(inputConfig.input_table_name);
 
   const fields = Object.keys(inputConfig).filter(field => {
     return (
@@ -19,7 +27,7 @@ if (contact === "Yes") {
       && !field.includes("ID_Recipe_Data_Summary")
     )
   });
-  // console.log({fields})//** Inspect */
+  // console.log({ fields })//** Inspect */
 
   // get the records
   let selected = await table.selectRecordsAsync({ fields })
@@ -44,7 +52,7 @@ if (contact === "Yes") {
   // initiate variables
   let Record_ID = null;
   let Action_Status = null;
-  // console.log({inputs,firstSet, secondSet}) //** Inspect */
+  // console.log({ inputs,firstSet,secondSet }) //** Inspect */
 
   let foundRecords = selected.records.find(
     record => {
@@ -57,14 +65,13 @@ if (contact === "Yes") {
       )
     }
   )
-  // console.log({foundRecords}) //** Inspect */
+  // console.log({ foundRecords }) //** Inspect */
 
   // Updated || Found
   if (foundRecords) {
     Record_ID = foundRecords.id;
     Action_Status = "Found";
-
-    // console.log('Found Record',{ foundRecords })  //** Inspect */
+    console.log('Found Record',{ foundRecords })  //** Inspect */
   }
 
   // Created
@@ -78,9 +85,9 @@ if (contact === "Yes") {
 
       Record_ID = newRecordId;
       Action_Status = "Created";
-      // console.log('New Record Created',{ newRecordId }) //** Inspect */
+      console.log('New Record Created',{ newRecordId }) //** Inspect */
     } catch (error) {
-      throw new Error("Faild to create Join Record")
+      throw new Error("Failed to create Join Record")
     }
   }
 
@@ -102,15 +109,16 @@ if (contact === "Yes") {
   //** Update Checklist Status */
   const checklist = base.getTable("Recipe_Checklist");
   // @ts-ignore
-  const { input_Table_Name,ID_Recipe_Data_Summary } = inputConfig;
+  const { input_table_name,ID_Recipe_Data_Summary } = inputConfig;
+  // console.log({ID_Recipe_Data_Summary, input_table_name}) //** Inspect */
 
   const recipeRecord = await checklist.selectRecordAsync(
     ID_Recipe_Data_Summary,
-    { fields: [input_Table_Name] }
+    { fields: [input_table_name] }
   );
 
   recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
-    { [input_Table_Name]: { name: `${Action_Status}` } }
+    { [input_table_name]: { name: `${Action_Status}` } }
   )
 } else {
   output.set("Action_Status","Null");
