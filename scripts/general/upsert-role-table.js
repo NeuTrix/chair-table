@@ -46,11 +46,13 @@ async function asyncGetRecords(fieldArray) {
 
 // ====================== MODULE ======================
 //** Find record by Role ID */
-async function asyncFindRecordByRoleId(records,Role_ID) {
+async function asyncFindRecordByRoleId(records,Role_ID,Role_Key) {
   const foundRecords = records.records.find(record => {
-    const record_Role = record.getCellValue(Role_Key)[0];
-    return record_Role.id === Role_ID;
+    const record_Role = record.getCellValue(Role_Key);
+    // need to account for possibility of a null value in record
+    return record_Role && record_Role[0].id === Role_ID;
   })
+  console.log({ foundRecords }) //** Inspect */
   return foundRecords;
 }
 
@@ -70,7 +72,7 @@ async function asyncProcessRecords(params) {
   ]);
 
   // get the records
-  const foundRecord = await asyncFindRecordByRoleId(allRecords,Role_ID);
+  const foundRecord = await asyncFindRecordByRoleId(allRecords,Role_ID,Role_Key);
 
   try {
     if (foundRecord) {
