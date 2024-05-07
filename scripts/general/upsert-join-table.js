@@ -1,4 +1,4 @@
-//** version 2024.04.30.001 */
+//** version 2024.05.07.001 */
 // set the search table name and find the table
 // initiate the config
 const inputConfig = input.config();
@@ -10,11 +10,11 @@ const fields = Object.keys(inputConfig).filter(field => {
     && !field.includes("ID_Recipe_Data_Summary")
   )
 });
-console.log({ fields })//** Inspect */
+// console.log({ fields })//** Inspect */
 
 // get the records
 let selected = await table.selectRecordsAsync({ fields })
-console.log({ selected }) //** Inspect */
+// console.log({ selected }) //** Inspect */
 
 async function asyncCreateInputs(fieldArray) {
   try {
@@ -23,7 +23,7 @@ async function asyncCreateInputs(fieldArray) {
       const value = inputConfig[field][0];
       fields[field] = value
     })
-    console.log({ fields }) //** Inspect */
+    // console.log({ fields }) //** Inspect */
     return fields;
 
   } catch (error) {
@@ -31,12 +31,11 @@ async function asyncCreateInputs(fieldArray) {
   }
 }
 
-// ? find the guests_events (Linked Table)
 const inputs = await asyncCreateInputs(fields);
 const [firstSet,secondSet] = Object.entries(inputs);
 const [first_field,First_ID] = firstSet;
 const [second_field,Second_ID] = secondSet;
-console.log({ inputs,firstSet,secondSet }) //** Inspect */
+// console.log({ inputs,firstSet,secondSet }) //** Inspect */
 
 // initiate variables
 let Record_ID = null;
@@ -55,23 +54,21 @@ let foundRecords = selected.records.find(
       // Investigate why this differs
       let record_One = cellOneValue[0];
       let record_Two = cellTwoValue[0];
-      console.log({ record_One,record_Two,First_ID,Second_ID }) //** Inspect */
+      // console.log({ record_One,record_Two,First_ID,Second_ID }) //** Inspect */
 
       return (record_One.id === First_ID && record_Two.id === Second_ID)
     }
   }
 )
-console.log({ foundRecords }) //** Inspect */
+// console.log({ foundRecords }) //** Inspect */
 
 // Updated || Found
 if (foundRecords) {
   Record_ID = foundRecords.id;
   Action_Status = "Found";
   console.log('Found Record',{ foundRecords });//** Inspect */
-}
-
-// Created
-if (!foundRecords) {
+} else {
+  // Created
   let newRecordId = null;
 
   try {
@@ -88,7 +85,7 @@ if (!foundRecords) {
 
   } catch (error) {
     Action_Status = "Error";
-    throw new Error("Faild to create Join Record")
+    throw new Error("Failed to create Join Record")
   }
 }
 
@@ -96,12 +93,7 @@ if (!foundRecords) {
 //** Update Single Select */
 // 1) Provide this at the end of the file...
 // 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
-// 3) update 'asyncProcessRecords' name
-// 4) ensure Table name is aligned in ID_Recipe_Data_Summary
-
-//** Execute the function and handle outputs */
-// @ts-ignore
-// const { Record_ID,Action_Status } = await asyncProcessRecords();
+// 3) ensure Table name is aligned in ID_Recipe_Data_Summary
 
 //** Set Outputs */
 output.set("Record_ID",[Record_ID]);
@@ -120,3 +112,4 @@ const recipeRecord = await checklist.selectRecordAsync(
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
   { [input_Table_Name]: { name: `${Action_Status}` } }
 )
+
