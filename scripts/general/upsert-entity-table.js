@@ -1,5 +1,15 @@
-//** ENTITY v.2024.05.04.002 */
+//** ENTITY v.2024.05.007.001 */
 // includes checklists update and error handling
+
+//** Requires 
+/* input_table_name,
+/* input_validation_field,
+/* searchable_id,
+/* ID_Recipe_Data_Summary 
+/* ...fields,
+
+*/
+
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_table_name);
 
@@ -12,7 +22,9 @@ function createTableData(fieldArray) {
 
 // Main async function to process records
 async function asyncProcessRecords(inputConfig) {
+
   const fields = Object.keys(inputConfig).filter(key => !key.includes("ID_") && !key.includes("input"));
+  // console.log({fields}) //** Inspect */
 
   if (!inputConfig.input_validation_field[0]) {
     throw new Error("Missing information: Input validation failed.");
@@ -21,13 +33,14 @@ async function asyncProcessRecords(inputConfig) {
   const tableData = createTableData(fields);
   const records = await table.selectRecordsAsync({ fields });
   const foundRecord = records.records.find(record => record.getCellValueAsString("searchable_id") === tableData.searchable_id);
+  console.log({ records,foundRecord }) //** Inspect */
 
   let actionStatus = foundRecord ? "Found" : "Created";
   let recordID = foundRecord?.id;
 
   if (foundRecord) {
     const updates = Object.entries(tableData).reduce((acc,[field,value]) => {
-      if (value !== foundRecord.getCellValue(field)) acc[field] = value;
+      if (value && value !== foundRecord.getCellValue(field)) acc[field] = value;
       return acc;
     },{});
 
