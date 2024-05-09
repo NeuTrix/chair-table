@@ -12,7 +12,6 @@
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_table_name);
 
-// combine createBaseData and createIdData
 function createTableData(fieldArray) {
   const fields = {};
   fieldArray.forEach(field => {
@@ -38,7 +37,7 @@ async function asyncProcessRecords(inputConfig) {
   // console.log({ tableData }) //** Inspect */
 
   const records = await table.selectRecordsAsync({ fields });
-  const foundRecord = records.records.find(record => record.getCellValueAsString("searchable_id") === baseData.searchable_id);
+  const foundRecord = records.records.find(record => record.getCellValueAsString("searchable_id") === tableData.searchable_id);
   // console.log({ records,foundRecord }) //** Inspect */
 
   let actionStatus = foundRecord ? "Found" : "Created";
