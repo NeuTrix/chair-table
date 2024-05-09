@@ -2,7 +2,7 @@
 // set the search table name and find the table
 // initiate the config
 const inputConfig = input.config();
-const table = base.getTable(inputConfig.input_Table_Name);
+const table = base.getTable(inputConfig.input_table_name);
 
 const fields = Object.keys(inputConfig).filter(field => {
   return (
@@ -27,7 +27,7 @@ async function asyncCreateInputs(fieldArray) {
     return fields;
 
   } catch (error) {
-    throw new Error(`Dab Nabbit! Something is not working in the ${input_Table_Name} script: ${error}`);
+    throw new Error(`Dab Nabbit! Something is not working in the ${input_table_name} script: ${error}`);
   }
 }
 
@@ -102,14 +102,14 @@ output.set("Action_Status",[Action_Status]);
 //** Update Checklist Status */
 const checklist = base.getTable("Recipe_Checklist");
 // @ts-ignore
-const { input_Table_Name,ID_Recipe_Data_Summary } = inputConfig;
+const { input_table_name,ID_Recipe_Data_Summary } = inputConfig;
 
 const recipeRecord = await checklist.selectRecordAsync(
   ID_Recipe_Data_Summary,
-  { fields: [input_Table_Name] }
+  { fields: [input_table_name] }
 );
 
 recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
-  { [input_Table_Name]: { name: `${Action_Status}` } }
+  { [input_table_name]: { name: `${Action_Status}` } }
 )
 
