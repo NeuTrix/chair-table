@@ -1,5 +1,5 @@
-//** ENTITY v.2024.05.09.001 */
-// Add back ability to add ID Fields
+//** ENTITY v.2024.05.09.002 */
+// Refactor to consolidate the process of creating, updating, and finding records
 
 //** Requires 
 /* input_table_name,
@@ -12,40 +12,34 @@
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_table_name);
 
-// Revised function to create table data more directly
-function createBaseData(fieldArray) {
+// combine createBaseData and createIdData
+function createTableData(fieldArray) {
   const fields = {};
-  fieldArray.forEach(field => fields[field] = inputConfig[field]?.[0]);
-  return fields;
-}
-
-function createIdData(fieldArray) {
-  const fields = {};
-  fieldArray.forEach(field => fields[field] = [{ id: inputConfig[field]?.[0] }]);
+  fieldArray.forEach(field => {
+    if (field.includes("ID_")) {
+      fields[field] = [{ id: inputConfig[field]?.[0] }];
+    } else {
+      fields[field] = inputConfig[field]?.[0];
+    }
+  });
   return fields;
 }
 
 // Main async function to process records
 async function asyncProcessRecords(inputConfig) {
-
-  const baseFields = Object.keys(inputConfig).filter(key => !key.includes("ID_") && !key.includes("input"));
-  console.log({ baseFields }) //** Inspect */
-
-  const idFields = Object.keys(inputConfig).filter(key => key.includes("ID_") && !key.includes("ID_Recipe_Data_Summary"));
-  console.log({ idFields }) //** Inspect */
+  const fields = Object.keys(inputConfig).filter(key => !key.includes("input") && !key.includes("ID_Recipe_Data_Summary"));
+  // console.log({ fields }) //** Inspect */
 
   if (!inputConfig.input_validation_field[0]) {
     throw new Error("Missing information: Input validation failed.");
   }
 
-  const baseData = createBaseData(baseFields);
-  const idData = createIdData(idFields);
-  const tableData = { ...baseData,...idData };
-  console.log({ tableData,baseData,idData }) //** Inspect */
+  const tableData = createTableData(fields);
+  // console.log({ tableData }) //** Inspect */
 
-  const records = await table.selectRecordsAsync({ fields: [...baseFields,...idFields] });
+  const records = await table.selectRecordsAsync({ fields });
   const foundRecord = records.records.find(record => record.getCellValueAsString("searchable_id") === baseData.searchable_id);
-  console.log({ records,foundRecord }) //** Inspect */
+  // console.log({ records,foundRecord }) //** Inspect */
 
   let actionStatus = foundRecord ? "Found" : "Created";
   let recordID = foundRecord?.id;
@@ -63,7 +57,7 @@ async function asyncProcessRecords(inputConfig) {
     }
 
   } else {
-    recordID = await table.createRecordAsync(baseData);
+    recordID = await table.createRecordAsync(tableData);
   }
 
   return { Record_ID: recordID,Action_Status: actionStatus };
