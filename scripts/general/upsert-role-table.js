@@ -1,5 +1,8 @@
 //** Upsert ROLE v.2024.05.06.001 */
 // Constants and Initial Setup
+
+// TODO: can this be done with just ID_xx vs splitting key and role name?
+
 // => get the table and variables for roles
 const inputConfig = input.config();
 //@ts-ignore

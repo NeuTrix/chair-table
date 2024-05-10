@@ -1,9 +1,8 @@
-//** ENTITY v.2024.05.09.002 */
-// Refactor to consolidate the process of creating, updating, and finding records
+//** ENTITY v.2024.05.10.001 */
+// 01- clean up filter for existing records to cover case of ID fields
 
 //** Requires 
 /* input_table_name,
-/* input_validation_field,
 /* searchable_id,
 /* ID_Recipe_Data_Summary 
 /* ...fields,
@@ -29,10 +28,6 @@ async function asyncProcessRecords(inputConfig) {
   const fields = Object.keys(inputConfig).filter(key => !key.includes("input") && !key.includes("ID_Recipe_Data_Summary"));
   // console.log({ fields }) //** Inspect */
 
-  if (!inputConfig.input_validation_field[0]) {
-    throw new Error("Missing information: Input validation failed.");
-  }
-
   const tableData = createTableData(fields);
   // console.log({ tableData }) //** Inspect */
 
@@ -44,11 +39,17 @@ async function asyncProcessRecords(inputConfig) {
   let recordID = foundRecord?.id;
 
   if (foundRecord) {
-    // update from base fields
     const updates = Object.entries(tableData).reduce((acc,[field,value]) => {
-      if (value && value !== foundRecord.getCellValue(field)) acc[field] = value;
+      const recordValue = foundRecord.getCellValue(field);
+      if (!field.includes("ID_")) {
+        if (value && value !== recordValue) acc[field] = value;
+      } else {
+        if (value && value[0].id !== recordValue[0].id) acc[field] = value;
+      }
+
       return acc;
     },{});
+    console.log({ updates })
 
     if (Object.keys(updates).length > 0) { // or for base updates
       await table.updateRecordAsync(foundRecord.id,updates);
