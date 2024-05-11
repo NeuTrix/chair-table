@@ -1,5 +1,5 @@
-//** ENTITY v.2024.05.10.001 */
-// 01- clean up filter for existing records to cover case of ID fields
+//** ENTITY v-2.1.1 */
+// 01- guard against null values for recordValue
 
 //** Requires 
 /* input_table_name,
@@ -11,6 +11,7 @@
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_table_name);
 
+// TODO: solve for null record Value cases
 function createTableData(fieldArray) {
   const fields = {};
   fieldArray.forEach(field => {
@@ -41,15 +42,16 @@ async function asyncProcessRecords(inputConfig) {
   if (foundRecord) {
     const updates = Object.entries(tableData).reduce((acc,[field,value]) => {
       const recordValue = foundRecord.getCellValue(field);
+
       if (!field.includes("ID_")) {
-        if (value && value !== recordValue) acc[field] = value;
+        if (recordValue && (value && value !== recordValue)) acc[field] = value;
       } else {
-        if (value && value[0].id !== recordValue[0].id) acc[field] = value;
+        if (recordValue && (value && value[0].id !== recordValue[0].id)) acc[field] = value;
       }
 
       return acc;
     },{});
-    console.log({ updates })
+    // console.log({ id: foundRecord.id, updates }) //** Inspect */
 
     if (Object.keys(updates).length > 0) { // or for base updates
       await table.updateRecordAsync(foundRecord.id,updates);
