@@ -1,4 +1,4 @@
-//** version 2024.05.07.001 */
+//** version JOIN-02.01.01 */
 // set the search table name and find the table
 // initiate the config
 const inputConfig = input.config();
@@ -66,7 +66,7 @@ let foundRecords = selected.records.find(
 if (foundRecords) {
   Record_ID = foundRecords.id;
   Action_Status = "Found";
-  console.log('Found Record',{ foundRecords });//** Inspect */
+  // console.log('Found Record',{ foundRecords });//** Inspect */
 } else {
   // Created
   let newRecordId = null;
@@ -81,7 +81,7 @@ if (foundRecords) {
 
     Record_ID = newRecordId;
     Action_Status = "Created";
-    console.log('New Record Created',{ newRecordId }) //** Inspect */
+    // console.log('New Record Created',{ newRecordId }) //** Inspect */
 
   } catch (error) {
     Action_Status = "Error";
