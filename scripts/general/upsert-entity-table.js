@@ -1,5 +1,5 @@
-//** ENTITY v-02.01.01 */
-// 01- guard against null values for recordValue
+//** ENTITY v-03.00.00 */
+// updates if not value in update field
 
 //** Requires 
 /* input_table_name,
@@ -43,10 +43,14 @@ async function asyncProcessRecords(inputConfig) {
     const updates = Object.entries(tableData).reduce((acc,[field,value]) => {
       const recordValue = foundRecord.getCellValue(field);
 
-      if (!field.includes("ID_")) {
-        if (recordValue && (value && value !== recordValue)) acc[field] = value;
-      } else {
-        if (recordValue && (value && value[0].id !== recordValue[0].id)) acc[field] = value;
+      if (value) {
+        const shouldUpdateField = !recordValue || (field.includes("ID_")
+          ? value[0].id !== recordValue[0].id
+          : value !== recordValue);
+
+        if (shouldUpdateField) {
+          acc[field] = value;
+        }
       }
 
       return acc;
