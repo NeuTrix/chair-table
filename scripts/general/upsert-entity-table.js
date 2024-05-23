@@ -1,10 +1,10 @@
-//** ENTITY v-03.00.00 */
-// updates if not value in update field
+//** ENTITY v-3.1.0 */
+// updates input name Checklist ID
 
 //** Requires 
 /* input_table_name,
 /* searchable_id,
-/* ID_Recipe_Data_Summary 
+/* ID_Recipe_Checklist 
 /* ...fields,
 */
 
@@ -26,7 +26,7 @@ function createTableData(fieldArray) {
 
 // Main async function to process records
 async function asyncProcessRecords(inputConfig) {
-  const fields = Object.keys(inputConfig).filter(key => !key.includes("input") && !key.includes("ID_Recipe_Data_Summary"));
+  const fields = Object.keys(inputConfig).filter(key => !key.includes("input") && !key.includes("ID_Recipe_Checklist"));
   // console.log({ fields }) //** Inspect */
 
   const tableData = createTableData(fields);
@@ -91,10 +91,10 @@ async function asyncProcessRecords(inputConfig) {
   /** Update Checklist Status */
   const checklist = base.getTable("Recipe_Checklist");
   // @ts-ignore
-  const { input_table_name,ID_Recipe_Data_Summary } = inputConfig;
+  const { input_table_name,ID_Recipe_Checklist } = inputConfig;
 
   const recipeRecord = await checklist.selectRecordAsync(
-    ID_Recipe_Data_Summary,
+    ID_Recipe_Checklist,
     { fields: [input_table_name] }
   );
 
