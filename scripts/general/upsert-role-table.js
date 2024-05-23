@@ -1,5 +1,11 @@
-//** Upsert ROLE v.2024.05.06.001 */
-// Constants and Initial Setup
+//** Upsert ROLE vs-1.1.0 */
+
+//** Inputs
+/* input_table_name
+/* Role_Key
+/* Role_Value
+/* ID_Recipe_Checklist
+*/
 
 // TODO: can this be done with just ID_xx vs splitting key and role name?
 
@@ -20,7 +26,7 @@ function getBasicFields(config) {
       !field.includes("ID_")
       && !field.includes("input")
       && !field.includes("Role")
-      && !field.includes("ID_Recipe_Data_Summary")
+      && !field.includes("ID_Recipe_Checklist")
     )
   });
 
@@ -124,9 +130,9 @@ async function asyncProcessRecords(params) {
 // ====================== MODULE ======================
 //** Update Single Select */
 // 1) Provide this at the end of the file...
-// 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
+// 2) Add ID_Recipe_Checklist to the inputConfig and filter it from Fields fns
 // 3) update 'asyncProcessRecords' name
-// 4) ensure Table name is aligned in ID_Recipe_Data_Summary
+// 4) ensure Table name is aligned in ID_Recipe_Checklist
 
 //** Execute the function and handle outputs */
 // @ts-ignore
@@ -144,10 +150,10 @@ output.set("Action_Status",[Action_Status]);
 //** Update Checklist Status */
 const checklist = base.getTable("Recipe_Checklist");
 // @ts-ignore
-const { ID_Recipe_Data_Summary } = inputConfig;
+const { ID_Recipe_Checklist } = inputConfig;
 
 const recipeRecord = await checklist.selectRecordAsync(
-  ID_Recipe_Data_Summary,
+  ID_Recipe_Checklist,
   { fields: [input_table_name] }
 );
 
