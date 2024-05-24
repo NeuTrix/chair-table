@@ -1,5 +1,10 @@
-//** version JOIN-02.01.01 */
-// set the search table name and find the table
+//** version JOIN-02.01.03 */
+// update configuration instructions
+
+//** Configuration */
+// input_table_name
+// ID_Recipe_Checklist
+
 // initiate the config
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_table_name);
@@ -7,7 +12,7 @@ const table = base.getTable(inputConfig.input_table_name);
 const fields = Object.keys(inputConfig).filter(field => {
   return (
     !field.includes("input")
-    && !field.includes("ID_Recipe_Data_Summary")
+    && !field.includes("ID_Recipe_Checklist")
   )
 });
 // console.log({ fields })//** Inspect */
@@ -49,6 +54,7 @@ let foundRecords = selected.records.find(
 
     let cellOneValue = record.getCellValue(first_field)
     let cellTwoValue = record.getCellValue(second_field)
+    // console.log({cellOneValue, cellTwoValue}) //** Inspect */
 
     if (cellOneValue && cellTwoValue) {
       // Investigate why this differs
@@ -92,8 +98,8 @@ if (foundRecords) {
 //==================================================================
 //** Update Single Select */
 // 1) Provide this at the end of the file...
-// 2) Add ID_Recipe_Data_Summary to the inputConfig and filter it from Fields fns
-// 3) ensure Table name is aligned in ID_Recipe_Data_Summary
+// 2) Add ID_Recipe_Checklist to the inputConfig and filter it from Fields fns
+// 3) ensure Table name is aligned in ID_Recipe_Checklist
 
 //** Set Outputs */
 output.set("Record_ID",[Record_ID]);
@@ -102,10 +108,10 @@ output.set("Action_Status",[Action_Status]);
 //** Update Checklist Status */
 const checklist = base.getTable("Recipe_Checklist");
 // @ts-ignore
-const { input_table_name,ID_Recipe_Data_Summary } = inputConfig;
+const { input_table_name,ID_Recipe_Checklist } = inputConfig;
 
 const recipeRecord = await checklist.selectRecordAsync(
-  ID_Recipe_Data_Summary,
+  ID_Recipe_Checklist,
   { fields: [input_table_name] }
 );
 

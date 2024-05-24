@@ -4,7 +4,7 @@
 //** Requires 
 /* input_table_name,
 /* searchable_id,
-/* ID_Recipe_Checklist 
+/* ID_Recipe_Checklist // for checklist update
 /* ...fields,
 */
 
