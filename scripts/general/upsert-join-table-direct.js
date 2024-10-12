@@ -1,19 +1,15 @@
-//** version JOIN-assumed 02.02.03 */
+//** upsert-join-table-direct v-2024-10-08 */
 // No Data default for ActionStatus
 
 //** Configuration */
-// input_table_name
-// ID_Recipe_Checklist
+// input_Table_Name
 
 // initiate the config
 const inputConfig = input.config();
-const table = base.getTable(inputConfig.input_table_name);
+const table = base.getTable(inputConfig.input_Table_Name);
 
 const fields = Object.keys(inputConfig).filter(field => {
-  return (
-    !field.includes("input")
-    && !field.includes("ID_Recipe_Checklist")
-  )
+  return !field.includes("input")
 });
 // console.log({ fields })//** Inspect */
 
@@ -96,25 +92,7 @@ if (foundRecords) {
 }
 
 //==================================================================
-//** Update Single Select */
-// 1) Provide this at the end of the file...
-// 2) Add ID_Recipe_Checklist to the inputConfig and filter it from Fields fns
-// 3) ensure Table name is aligned in ID_Recipe_Checklist
-
 //** Set Outputs */
 output.set("Record_ID",[Record_ID]);
 output.set("Action_Status",[Action_Status]);
 
-//** Update Checklist Status */
-const checklist = base.getTable("Recipe_Checklist");
-// @ts-ignore
-const { input_table_name,ID_Recipe_Checklist } = inputConfig;
-
-const recipeRecord = await checklist.selectRecordAsync(
-  ID_Recipe_Checklist,
-  { fields: [input_table_name] }
-);
-
-recipeRecord && await checklist.updateRecordAsync(recipeRecord.id,
-  { [input_table_name]: { name: `${Action_Status}` } }
-)

@@ -1,29 +1,32 @@
-//** Entity v.2024.10.07.000 */
-// Direct creation of a PEOPLE record in the PEOPLE
-// No use of Recipe Data Summary or Checklist
+//** upsert-entity-table-direct.js v.04.00.01 */
+// 2024-10-11
 
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_Table_Name);
 const hasData = inputConfig.input_Validation_Field[0];
 
-// Grab field names from inputs, excluding ID and Table fields
-const fields = Object.keys(inputConfig).filter(key => {
-  return !key.includes("ID_") && !key.includes("input")
-})
+// TODO: solve for null record Value cases
 
-function createInputs(fieldArray) {
-  let fields = {};
-
-  fieldArray.forEach(field => {
-    fields[field] = inputConfig[field];
-  })
+//** Need to add this to cover ID_ cases */
+function createInputs(nonInputFields) {
+  const fields = {};
+  nonInputFields.forEach(field => {
+    if (field.includes("ID_")) {
+      fields[field] = [{ id: inputConfig[field]?.[0] }];
+    } else {
+      fields[field] = inputConfig[field]?.[0];
+    }
+  });
 
   return fields;
 }
 
+// Grab field names from inputs, excluding ID and Table fields
+
 async function asyncProcessRecords() {
-  const inputs = createInputs(fields);
-  const { searchable_id } = inputs;
+  const fields = Object.keys(inputConfig).filter(key => !key.includes("input"));
+  const tableInputs = createInputs(fields);
+  const { searchable_id } = tableInputs;
 
   let Record_ID = null;
   let Action_Status = null;
@@ -31,14 +34,18 @@ async function asyncProcessRecords() {
   try {
     if (!hasData) {
       Action_Status = "Error";
-      throw new Error("Missing information");
+      console.log("No data to Process")
+      return { Record_ID,Action_Status }
     };
 
+    // collect records from the table using the fields
     const records = await table.selectRecordsAsync({ fields });
 
+    // find the record based on the searchable_id
     const foundRecord = records.records.find(
       record => record.getCellValueAsString("searchable_id") === searchable_id
     );
+    // console.log({ records,foundRecord }) //** Inspect */
 
     if (foundRecord) {
       Record_ID = foundRecord.id;
@@ -46,7 +53,7 @@ async function asyncProcessRecords() {
       let updates = {}; // console.log({updates})
 
       // Determine necessary updates based on new data provided
-      for (const [field,value] of Object.entries(inputs)) {
+      for (const [field,value] of Object.entries(tableInputs)) {
         if (value && value !== foundRecord.getCellValue(field)) {
           updates[field] = value;
         }
@@ -62,7 +69,7 @@ async function asyncProcessRecords() {
       }
     } else if (hasData) {
       //** Create Record */
-      const newRecordId = await table.createRecordAsync({ ...inputs });
+      const newRecordId = await table.createRecordAsync({ ...tableInputs });
       Record_ID = newRecordId;
       Action_Status = "Created";
     }

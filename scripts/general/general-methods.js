@@ -1,3 +1,13 @@
+//** Print Bullets vs 1.0.0 */
+
+function printBulletPoints(wordsArray) {
+  const sortedArray = wordsArray.sort();
+  return sortedArray.map(word => '• ' + word).join('\n');
+}
+
+// @ts-ignore
+output.set("Events",printBulletPoints(input.config().array))
+
 // create a function to a record's single select field value in airtable
 //==================================================================
 //** Update Single Select */
