@@ -5,6 +5,8 @@ const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_Table_Name);
 const hasData = inputConfig.input_Validation_Field[0];
 
+// console.log({ inputConfig,hasData }) //** Inspect */
+
 // TODO: solve for null record Value cases
 
 //** Need to add this to cover ID_ cases */
