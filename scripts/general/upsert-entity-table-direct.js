@@ -1,34 +1,39 @@
-//** upsert-entity-table-direct.js v.04.00.01 */
+//** upsert-entity-table-direct.js v.04.00.03 */
+//custom: [hasData]
 // 2024-10-11
 
 const inputConfig = input.config();
-const table = base.getTable(inputConfig.input_Table_Name);
-const hasData = inputConfig.input_Validation_Field[0];
+const table = base.getTable(inputConfig.input_table_name);
+const hasData = inputConfig.input_validation_field; // custom
 
-// console.log({ inputConfig,hasData }) //** Inspect */
+console.log({ inputConfig,hasData }) //** Inspect */
 
 // TODO: solve for null record Value cases
 
 //** Need to add this to cover ID_ cases */
 function createInputs(nonInputFields) {
+
   const fields = {};
   nonInputFields.forEach(field => {
     if (field.includes("ID_")) {
-      fields[field] = [{ id: inputConfig[field]?.[0] }];
+      fields[field] = [{ id: inputConfig[field]?.[0] }];//** CUSTOM */
     } else {
-      fields[field] = inputConfig[field]?.[0];
+      fields[field] = inputConfig[field];//** CUSTOM */
     }
   });
 
+  // console.log({fields}) //** Inspext */
   return fields;
 }
 
 // Grab field names from inputs, excluding ID and Table fields
 
 async function asyncProcessRecords() {
-  const fields = Object.keys(inputConfig).filter(key => !key.includes("input"));
+  const fields = Object.keys(inputConfig).filter(key => {
+    return !key.includes("input") && !key.includes("searchable")
+  });
   const tableInputs = createInputs(fields);
-  const { searchable_id } = tableInputs;
+  const { searchable_id,searchable_label } = tableInputs;
 
   let Record_ID = null;
   let Action_Status = null;
@@ -45,7 +50,7 @@ async function asyncProcessRecords() {
 
     // find the record based on the searchable_id
     const foundRecord = records.records.find(
-      record => record.getCellValueAsString("searchable_id") === searchable_id
+      record => record.getCellValueAsString(`order_number`) === searchable_id
     );
     // console.log({ records,foundRecord }) //** Inspect */
 
