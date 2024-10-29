@@ -1,18 +1,24 @@
-//** upsert-entity-table-direct.js v.04.00.03 */
+//** upsert-entity-table-direct.js v.04.00.05 */
 //custom: [hasData]
-// 2024-10-11
+// 2024-10-14
+
+//** config */
+// input_table_name
+// input_validation
+// searchable id and label (optional?)
 
 const inputConfig = input.config();
 const table = base.getTable(inputConfig.input_table_name);
 const hasData = inputConfig.input_validation_field; // custom
 
-console.log({ inputConfig,hasData }) //** Inspect */
+// console.log({ inputConfig,hasData }) //** Inspect */
 
 // TODO: solve for null record Value cases
 
 //** Need to add this to cover ID_ cases */
 function createInputs(nonInputFields) {
 
+  // Todo: How to solve for strings vs arrays for these values (type check?)
   const fields = {};
   nonInputFields.forEach(field => {
     if (field.includes("ID_")) {
@@ -22,7 +28,7 @@ function createInputs(nonInputFields) {
     }
   });
 
-  // console.log({fields}) //** Inspext */
+  // console.log({fields}) //** Inspect */
   return fields;
 }
 
@@ -30,10 +36,10 @@ function createInputs(nonInputFields) {
 
 async function asyncProcessRecords() {
   const fields = Object.keys(inputConfig).filter(key => {
-    return !key.includes("input") && !key.includes("searchable")
+    return !key.includes("input")
   });
   const tableInputs = createInputs(fields);
-  const { searchable_id,searchable_label } = tableInputs;
+  const { searchable_id } = tableInputs;
 
   let Record_ID = null;
   let Action_Status = null;
@@ -41,7 +47,7 @@ async function asyncProcessRecords() {
   try {
     if (!hasData) {
       Action_Status = "Error";
-      console.log("No data to Process")
+      console.log("No data to Process [missing input_validation")
       return { Record_ID,Action_Status }
     };
 
@@ -50,7 +56,8 @@ async function asyncProcessRecords() {
 
     // find the record based on the searchable_id
     const foundRecord = records.records.find(
-      record => record.getCellValueAsString(`order_number`) === searchable_id
+      //** TODO:  make 'column_name_here' a variable */
+      record => record.getCellValueAsString(`column_name_here`) === searchable_id
     );
     // console.log({ records,foundRecord }) //** Inspect */
 
